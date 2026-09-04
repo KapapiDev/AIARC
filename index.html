@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AIARC — 건설 서류 자동화</title>
+<title>AIARC - 건설 서류 자동화</title>
 <meta name="description" content="공사가 끝나도 서류는 끝나지 않습니다. AIARC는 현장 서류를 자동으로 정리합니다.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
@@ -18,12 +18,24 @@
 <style>
 /* ── tokens: measured from altitude.so, cross-checked against DESIGN (Altitude).md ── */
 :root{
-  --background:#181818;      /* oklch(21% 0 0)      */
-  --foreground:#eeeeee;      /* oklch(95% 0 84.56)  */
-  --muted-foreground:#a4a19b;/* oklch(71% .01 86.85)*/
-  --muted:#262626;           /* oklch(27% 0 0)      */
-  --border:#2b2b2b;          /* oklch(29% 0 0)      */
-  --primary:#f8f8f8;         /* oklch(98% 0 67.8)   */
+  /* rgb triples so every alpha variant below derives from one source
+     instead of a re-typed hex (design-system: no raw hex in components) */
+  --background-rgb:24 24 24;         /* oklch(21% 0 0)       */
+  --foreground-rgb:238 238 238;      /* oklch(95% 0 84.56)   */
+  --muted-foreground-rgb:164 161 155;/* oklch(71% .01 86.85) */
+  --muted-rgb:38 38 38;              /* oklch(27% 0 0)       */
+  --border-rgb:43 43 43;             /* oklch(29% 0 0)       */
+  --primary-rgb:248 248 248;         /* oklch(98% 0 67.8)    */
+  --ring-rgb:228 228 228;            /* oklch(92% 0 84.56)   */
+  --input-rgb:88 88 88;              /* oklch(46% 0 197.11)  */
+
+  --background:rgb(var(--background-rgb));
+  --foreground:rgb(var(--foreground-rgb));
+  --muted-foreground:rgb(var(--muted-foreground-rgb));
+  --muted:rgb(var(--muted-rgb));
+  --border:rgb(var(--border-rgb));
+  --primary:rgb(var(--primary-rgb));
+  --ring:rgb(var(--ring-rgb));
   --primary-foreground:#181818;
 
   --font-serif:'Libre Baskerville','Noto Serif KR',ui-serif,Georgia,serif;
@@ -97,13 +109,22 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 .nav-center{position:absolute;left:50%;transform:translateX(-50%);display:none}
 .nav-center ul{display:flex;align-items:center;gap:0}
 .nav-center a{
+  position:relative;
   display:flex;height:var(--header-h);align-items:center;padding:0 16px;
   font-size:14px;font-weight:500;color:var(--foreground);
   transition:color .15s var(--ease-ui);
 }
-/* Altitude's nav links resolve to hover:text-foreground on text that is already
-   foreground — i.e. no hover state at all. Reproduced rather than invented. */
-.nav-center a:hover{color:var(--foreground)}
+/* The reference's nav hover resolves to text-foreground on already-foreground
+   text, so it has no hover state at all. This is the underline marker its own
+   style guide describes for the active state, reused as the hover affordance. */
+.nav-center a::after{
+  content:"";position:absolute;left:16px;right:16px;bottom:20px;height:1px;
+  background:var(--muted-foreground);
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform .2s var(--ease-ui);
+}
+.nav-center a:hover::after,
+.nav-center a:focus-visible::after{transform:scaleX(1)}
 
 .nav-right{display:none;align-items:center;gap:8px;min-width:200px;justify-content:flex-end}
 
@@ -113,16 +134,16 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
   outline:none;cursor:pointer;transition:all .15s var(--ease-ui);
 }
 .btn:active{transform:scale(.97)}
-.btn:focus-visible{border-color:#e4e4e4;box-shadow:0 0 0 3px rgba(228,228,228,.5)}
+.btn:focus-visible{border-color:var(--ring);box-shadow:0 0 0 3px rgb(var(--ring-rgb) / .5)}
 
 .btn-ghost{height:28px;padding:0 10px;border-radius:2px;font-size:12.8px;color:var(--foreground)}
-.btn-ghost:hover{background:rgba(38,38,38,.5)}
+.btn-ghost:hover{background:rgb(var(--muted-rgb) / .5)}
 
 .btn-primary{
   height:36px;padding:0 10px;gap:6px;border-radius:4px;
   background:var(--primary);color:var(--primary-foreground);font-size:14px;
 }
-.btn-primary:hover{background:rgba(248,248,248,.8)}
+.btn-primary:hover{background:rgb(var(--primary-rgb) / .8)}
 
 .menu-toggle{
   display:flex;align-items:center;justify-content:center;
@@ -137,10 +158,10 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 .mobile-menu a{display:block;padding:12px 0;font-size:14px;font-weight:500;color:var(--muted-foreground)}
 .mobile-menu .btn{
   width:100%;height:32px;margin-top:16px;padding:0 10px;border-radius:4px;
-  border-color:var(--border);background:rgba(88,88,88,.3);
+  border-color:var(--border);background:rgb(var(--input-rgb) / .3);
   color:var(--foreground);font-size:14px;
 }
-.mobile-menu .btn:hover{background:rgba(88,88,88,.5)}
+.mobile-menu .btn:hover{background:rgb(var(--input-rgb) / .5)}
 
 @media (min-width:768px){
   .nav-center,.nav-right{display:flex}
@@ -151,9 +172,14 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 /* ── hero ─────────────────────────────────────────────────────────────────── */
 main{padding-top:var(--header-h)}
 
+/* svh, not vh: on iOS Safari 100vh is the URL-bar-hidden height, so the hero
+   starts taller than the visible area and pushes the CTA below the fold on
+   first paint. vh lines first as the fallback for browsers without svh. */
 .hero{
   position:relative;display:flex;flex-direction:column;align-items:center;
-  min-height:100vh;max-height:100vh;padding:0 24px;overflow:hidden;
+  min-height:100vh;max-height:100vh;
+  min-height:100svh;max-height:100svh;
+  padding:0 24px;overflow:hidden;
 }
 
 /* top:20% and top:30% are Altitude's own anchors — they keep the headline and the
@@ -203,13 +229,25 @@ main{padding-top:var(--header-h)}
   animation:skyline-reveal 2500ms ease-out 600ms forwards;
 }
 
+/* Scroll entry. The hidden state is scoped to .js-reveal, which the script adds
+   only when motion is wanted — so with JS off or reduced motion on, the content
+   is simply visible rather than stuck at opacity 0. 16px, not the hero's 24px:
+   this is secondary content and should read as a fade, not a slide. */
+.js-reveal .reveal-on-scroll{opacity:0;transform:translateY(16px)}
+.js-reveal .reveal-on-scroll.is-in{
+  opacity:1;transform:none;
+  transition:opacity 600ms var(--ease-reveal),transform 600ms var(--ease-reveal);
+}
+
 @media (prefers-reduced-motion:reduce){
   .reveal{opacity:1;transform:none;animation:none}
   .skyline{clip-path:none;animation:none}
+  .js-reveal .reveal-on-scroll{opacity:1;transform:none}
+  .nav-center a::after{transition:none}
 }
 
 /* ── footer ───────────────────────────────────────────────────────────────── */
-.site-footer{background:var(--background);border-top:1px solid rgba(43,43,43,.3)}
+.site-footer{background:var(--background);border-top:1px solid rgb(var(--border-rgb) / .3)}
 .footer-cols{
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
   gap:48px 32px;max-width:768px;margin:0 auto;padding:64px 0;
@@ -219,10 +257,10 @@ main{padding-top:var(--header-h)}
 }
 .footer-cols li+li{margin-top:14px}
 .footer-cols a{font-size:14px;color:var(--foreground);transition:color .2s var(--ease-ui)}
-.footer-cols a:hover{color:rgba(238,238,238,.7)}
+.footer-cols a:hover{color:rgb(var(--foreground-rgb) / .7)}
 /* .8 not the reference's .7: at 12px, .7 measures 4.03:1 on this canvas and
    fails WCAG AA. .8 gives 4.88:1 and is visually indistinguishable. */
-.footer-legal{padding:32px 0;text-align:center;font-size:12px;color:rgba(164,161,155,.8)}
+.footer-legal{padding:32px 0;text-align:center;font-size:12px;color:rgb(var(--muted-foreground-rgb) / .8)}
 
 @media (min-width:768px){
   .footer-cols{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -300,7 +338,7 @@ main{padding-top:var(--header-h)}
 <footer class="site-footer">
   <div class="container">
     <div class="footer-cols">
-      <div>
+      <div class="reveal-on-scroll">
         <h3>OVERVIEW</h3>
         <ul>
           <li><a href="#product">Product</a></li>
@@ -308,14 +346,14 @@ main{padding-top:var(--header-h)}
           <li><a href="#security">Security</a></li>
         </ul>
       </div>
-      <div>
+      <div class="reveal-on-scroll">
         <h3>LEGAL</h3>
         <ul>
           <li><a href="#terms">이용약관</a></li>
           <li><a href="#privacy">개인정보처리방침</a></li>
         </ul>
       </div>
-      <div>
+      <div class="reveal-on-scroll">
         <h3>CONTACT</h3>
         <ul>
           <li><a href="#blog">Blog</a></li>
@@ -338,6 +376,25 @@ main{padding-top:var(--header-h)}
     toggle.setAttribute('aria-label', open ? '메뉴 열기' : '메뉴 닫기');
     menu.hidden = open;
   });
+
+  // Scroll entry for the footer. Opt-in: the hidden state only exists once this
+  // class is set, so no-JS and reduced-motion visitors get the content outright.
+  var wantsMotion = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items = document.querySelectorAll('.reveal-on-scroll');
+  if (wantsMotion && 'IntersectionObserver' in window && items.length) {
+    document.documentElement.classList.add('js-reveal');
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-in');
+        io.unobserve(entry.target);
+      });
+    }, { threshold: 0, rootMargin: '0px 0px -40px 0px' });
+    items.forEach(function (el, i) {
+      el.style.transitionDelay = i * 80 + 'ms';
+      io.observe(el);
+    });
+  }
 </script>
 
 </body>
