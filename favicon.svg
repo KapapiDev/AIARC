@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="5" fill="#181818"/>
+  <!-- the wordmark's A, drawn as strokes so it needs no webfont -->
+  <path d="M8 25 L16 7 L24 25 M11.6 19 L20.4 19"
+        fill="none" stroke="#eeeeee" stroke-width="2.4"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

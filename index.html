@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AIARC — 건설 서류 자동화</title>
 <meta name="description" content="공사가 끝나도 서류는 끝나지 않습니다. AIARC는 현장 서류를 자동으로 정리합니다.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AIARC">
+<meta property="og:description" content="공사가 끝나도 서류는 끝나지 않습니다.">
+<!-- add og:image once a 1200x630 card exists; a broken reference is worse than none -->
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- css2 requires families in alphabetical order or it 400s and nothing loads -->
@@ -33,7 +39,9 @@
 }
 
 *,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+/* the header is fixed, so anchor jumps and keyboard focus must clear it —
+   WCAG 2.2 AA 2.4.11 Focus Not Obscured */
+html{-webkit-text-size-adjust:100%;scroll-padding-top:var(--header-h)}
 body{
   margin:0;
   background:var(--background);
@@ -51,6 +59,23 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 
 .container{max-width:var(--container);margin:0 auto;padding:0 var(--gutter)}
 @media (min-width:1024px){.container{padding:0 32px}}
+
+/* one shared focus ring — the reference ships none on its nav links */
+:where(a,button):focus-visible{
+  outline:2px solid var(--foreground);
+  outline-offset:2px;
+  border-radius:2px;
+}
+
+.skip-link{
+  position:absolute;left:8px;top:-64px;z-index:200;
+  padding:8px 12px;border-radius:4px;
+  background:var(--foreground);color:var(--background);
+  font-size:14px;font-weight:500;
+  transition:top .15s var(--ease-ui);
+}
+/* :focus, not :focus-visible — a skip link must surface on any focus */
+.skip-link:focus{top:8px}
 
 /* ── header ───────────────────────────────────────────────────────────────── */
 .site-header{
@@ -195,7 +220,9 @@ main{padding-top:var(--header-h)}
 .footer-cols li+li{margin-top:14px}
 .footer-cols a{font-size:14px;color:var(--foreground);transition:color .2s var(--ease-ui)}
 .footer-cols a:hover{color:rgba(238,238,238,.7)}
-.footer-legal{padding:32px 0;text-align:center;font-size:12px;color:rgba(164,161,155,.7)}
+/* .8 not the reference's .7: at 12px, .7 measures 4.03:1 on this canvas and
+   fails WCAG AA. .8 gives 4.88:1 and is visually indistinguishable. */
+.footer-legal{padding:32px 0;text-align:center;font-size:12px;color:rgba(164,161,155,.8)}
 
 @media (min-width:768px){
   .footer-cols{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -210,6 +237,8 @@ main{padding-top:var(--header-h)}
 </style>
 </head>
 <body>
+
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
 
 <header class="site-header">
   <div class="container">
@@ -246,7 +275,7 @@ main{padding-top:var(--header-h)}
   </div>
 </header>
 
-<main>
+<main id="main">
   <section class="hero">
     <div class="hero-copy">
       <div class="reveal reveal-1">
@@ -259,8 +288,8 @@ main{padding-top:var(--header-h)}
 
     <div class="skyline">
       <div class="skyline-clip">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 630 360" preserveAspectRatio="none" aria-labelledby="skyline-title">
-          <title id="skyline-title">Decorative architectural skyline</title>
+        <!-- purely decorative: announcing it adds nothing for screen readers -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 630 360" preserveAspectRatio="none" aria-hidden="true" focusable="false">
           <path id="skyline-path" d="M 0,177 L 0,172 L 30,172 L 30,166 L 43,160 L 56,166 L 56,158 L 86,158 L 86,150 L 93.8,150 L 93.8,142 L 104.2,142 L 104.2,150 L 112,150 L 112,177 L 120,177 L 120,141 L 146,141 L 146,128 L 150.4,128 L 150.4,118 L 163.6,118 L 163.6,128 L 168,128 L 168,112 L 180,112 L 180,95 L 180,112 L 192,112 L 192,110 L 196,110 L 196,98 L 208,98 L 208,110 L 212,110 L 212,118 L 234,118 L 234,130 L 241.2,130 L 241.2,121 L 250.8,121 L 250.8,130 L 258,130 L 258,177 L 266,177 L 266,152 L 292,152 L 292,160 L 303,154 L 314,160 L 314,148 L 342,148 L 342,177 L 350,177 L 350,139 L 357.2,139 L 357.2,131 L 366.8,131 L 366.8,139 L 374,139 L 374,133 L 400,133 L 400,143 L 422,143 L 422,136 L 426.8,136 L 426.8,127 L 441.2,127 L 441.2,136 L 446,136 L 446,177 L 454,177 L 454,126 L 478,126 L 478,122 L 482,122 L 482,112 L 494,112 L 494,122 L 498,122 L 498,127 L 509,127 L 509,112 L 509,127 L 520,127 L 520,121 L 544,121 L 544,132 L 550.6,132 L 550.6,124 L 559.4,124 L 559.4,132 L 566,132 L 566,177 L 578,177 L 578,152 L 602,152 L 602,163 L 610,158 L 618,163 L 618,172 L 630,172 L 630,177" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
         </svg>
       </div>
