@@ -1,0 +1,146 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>render og.png</title>
+<!--
+  Rasterises tools/og-card.html to og.png at exactly 1200x630.
+
+  A screenshot cannot do this job: the browser pane scales anything wider than
+  itself, so the capture comes back smaller than the card. Instead the card is
+  loaded same-origin in an iframe, measured, and redrawn into a canvas.
+
+  Two things need care.
+
+  The artwork is styled by the CARD's stylesheet, not by rules inside the SVG -
+  the knockout fills and the texture grey both live in og-card.html. Serialising
+  the SVG on its own would drop them and the drawing would come out with black
+  patches. So every shape's computed fill is written back as an attribute before
+  serialising: the cascade is baked in, and the standalone SVG renders the same
+  as it does on the card.
+
+  Text is drawn run by run rather than as whole elements, because the strapline
+  wraps and canvas has no line breaking. Each run's box is measured off the live
+  DOM with a Range, so the canvas copy lands where the browser actually put it.
+
+  Serve the folder and open this page; it POSTs the result to /__save/og.png.
+-->
+<body style="margin:0;background:#333;color:#eee;font:13px monospace">
+<iframe id="f" src="og-card.html" width="1200" height="630" style="border:0;position:absolute;left:-4000px"></iframe>
+<canvas id="c" width="1200" height="630" style="width:600px;display:block"></canvas>
+<pre id="log"></pre>
+<script>
+const log = (m) => document.getElementById('log').textContent += m + '\n';
+
+function bakeFills(svg) {
+  const clone = svg.cloneNode(true);
+  const src = svg.querySelectorAll('*'), dst = clone.querySelectorAll('*');
+  for (let i = 0; i < src.length; i++) {
+    const cs = getComputedStyle(src[i]);
+    if (cs.fill && cs.fill !== 'none') dst[i].setAttribute('fill', cs.fill);
+    if (cs.stroke && cs.stroke !== 'none') {
+      dst[i].setAttribute('stroke', cs.stroke);
+      dst[i].setAttribute('stroke-width', cs.strokeWidth);
+    }
+    // the page animates the reveal; the card is a still with the mask wide open
+    if (dst[i].tagName === 'polyline') {
+      dst[i].setAttribute('stroke-dasharray', 'none');
+      dst[i].setAttribute('stroke-dashoffset', '0');
+    }
+  }
+  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  return new XMLSerializer().serializeToString(clone);
+}
+
+const loadSvg = (text) => new Promise((res, rej) => {
+  const i = new Image();
+  i.onload = () => res(i); i.onerror = rej;
+  i.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(text);
+});
+
+// every visually distinct line of text inside an element, with the box the
+// browser gave it
+function runs(el) {
+  const doc = el.ownerDocument, nodes = [];
+  (function walk(n) {
+    if (n.nodeType === 3) nodes.push(n);
+    else for (const c of n.childNodes) walk(c);
+  })(el);
+  const out = [];
+  for (const node of nodes) {
+    const t = node.data;
+    let cur = null;
+    for (let i = 0; i < t.length; i++) {
+      const r = doc.createRange();
+      r.setStart(node, i); r.setEnd(node, i + 1);
+      const b = r.getBoundingClientRect();
+      if (!b.width && !b.height) continue;
+      if (cur && Math.abs(b.top - cur.top) < 1) { cur.text += t[i]; }
+      else { if (cur) out.push(cur); cur = { text: t[i], left: b.left, top: b.top, bottom: b.bottom }; }
+    }
+    if (cur) out.push(cur);
+  }
+  return out;
+}
+
+(async function () {
+  const f = document.getElementById('f');
+  // Waiting on the load event races an about:blank that is already "complete".
+  // Poll for the card's own markup instead - that is only there once the real
+  // document has parsed.
+  const d = await (async function () {
+    for (let i = 0; i < 200; i++) {
+      const doc = f.contentDocument;
+      if (doc && doc.readyState === 'complete' && doc.querySelector('#hero-art-svg')) return doc;
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    throw new Error('og-card.html never finished loading in the iframe');
+  })();
+  const w = f.contentWindow;
+  await d.fonts.ready;
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+  const c = document.getElementById('c'), x = c.getContext('2d');
+  x.fillStyle = w.getComputedStyle(d.body).backgroundColor;
+  x.fillRect(0, 0, 1200, 630);
+
+  // the artwork, then the mark - both under the copy
+  for (const sel of ['#hero-art-svg', '.brand-mark']) {
+    const el = d.querySelector(sel);
+    if (!el) { log('missing ' + sel); continue; }
+    const box = el.getBoundingClientRect();
+    const holder = sel === '#hero-art-svg' ? el.closest('.hero-art') : el;
+    const img = await loadSvg(bakeFills(el));
+    const alpha = parseFloat(w.getComputedStyle(holder).opacity) || 1;
+    x.save();
+    x.globalAlpha = alpha;
+    x.drawImage(img, box.left, box.top, box.width, box.height);
+    x.restore();
+    log(`${sel}: ${box.width.toFixed(1)}x${box.height.toFixed(1)} at ${box.left.toFixed(1)},${box.top.toFixed(1)} alpha ${alpha}`);
+  }
+
+  // copy
+  for (const sel of ['.wordmark span', 'h1', 'p']) {
+    for (const el of d.querySelectorAll(sel)) {
+      const cs = w.getComputedStyle(el);
+      x.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize}/${cs.lineHeight} ${cs.fontFamily}`;
+      x.letterSpacing = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing;
+      x.fillStyle = cs.color;
+      x.textBaseline = 'alphabetic';
+      const m = x.measureText('Hg');
+      const asc = m.fontBoundingBoxAscent, desc = m.fontBoundingBoxDescent;
+      const lh = parseFloat(cs.lineHeight);
+      for (const r of runs(el)) {
+        // the Range box is the line box; the baseline sits a half-leading below its top
+        const baseline = r.top + (lh - (asc + desc)) / 2 + asc;
+        x.fillText(r.text, r.left, baseline);
+      }
+      log(`${sel}: ${runs(el).length} line(s), ${cs.fontSize} ${cs.fontFamily.split(',')[0]}`);
+    }
+  }
+
+  c.toBlob((b) => {
+    fetch('/__save/og.png', { method: 'POST', body: b })
+      .then((r) => r.text()).then((t) => log('POST /__save/og.png -> ' + t + ' (' + b.size + ' bytes)'));
+  }, 'image/png');
+})().catch((e) => log('ERROR ' + e.message));
+</script>
+</body>
