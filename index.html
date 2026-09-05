@@ -196,17 +196,17 @@ main{padding-top:var(--header-h)}
    screens. It is bottom-anchored instead — the ground line sits just above the
    fold and the city grows upward from there. */
 .hero-copy{
-  position:absolute;top:20%;left:50%;transform:translateX(-50%);z-index:1;
+  position:absolute;top:20%;left:50%;transform:translateX(-50%);z-index:2;
   width:100%;max-width:896px;padding:0 24px;text-align:center;
 }
 
 .hero h1{
   font-family:var(--font-serif);font-weight:400;
   /* 58 -> 50, 48 -> 41.5, 38 -> 33: 13-14% off at every breakpoint, so the
-     headline stops dominating the skyline. Leading 1.15 -> 1.08 binds the two
+     headline stops dominating the drawing. Leading 1.15 -> 1.08 binds the two
      lines into one block. Family and weight unchanged. */
   font-size:33px;line-height:1.08;letter-spacing:-.025em;
-  /* top of the brightness ladder: headline 100, subhead 70, skyline 40 */
+  /* top of the brightness ladder: headline 100, subhead 70, drawing 42 */
   color:rgb(255 255 255);
   /* Korean has no inter-syllable break opportunity worth taking — without this the
      browser splits 않습니다 across lines at narrow widths */
@@ -223,24 +223,32 @@ main{padding-top:var(--header-h)}
 }
 .hero-cta{margin-top:40px;display:flex;align-items:center;justify-content:center}
 
-/* The ground line sits at 94.8% of the viewport height. It was 92.8%, where the
-   source drawing put it, but the graphic now sits lower so the tower stays
-   clear of the Download button and reads as something the copy rests on. The
-   hero is 100svh yet starts below the header, so its own bottom is header-h
-   past the fold - hence the two terms. */
-.skyline{position:absolute;bottom:calc(5.2vh + var(--header-h));left:0;right:0;width:100%;pointer-events:none}
-.skyline-clip{width:100%;overflow:hidden;display:flex;justify-content:center}
-.skyline svg{display:block;width:100%;height:auto}
-/* The stroke is taken out of the viewBox scale (non-scaling-stroke on the path)
-   so it can be set in real pixels here. 0.1716vw is exactly the 3.3 the drawing
-   is drawn at when rendered 1905px wide; the floor keeps a phone from
-   rendering it at half a pixel, the ceiling keeps an ultrawide from fattening
-   it into a marker line. */
-#skyline-line{stroke-width:clamp(1.32px, 0.1716vw, 4.4px)}
+/* The drawing is the hero's backdrop, not a strip along the bottom. xMidYMax meet
+   keeps its own margins intact and anchors it to the floor of the hero: slice was
+   the obvious choice but it scales the drawing up as the window narrows, which
+   walked the left and right groups straight into the copy at 1600 and below. With
+   meet the empty centre column the composition was drawn with is preserved at
+   every width, and a narrow window simply gets a shorter drawing. */
+/* A hair of grain over the hero. At 0.028 it is invisible as texture and only does
+   one job: break the banding a large flat near-black panel shows on 8-bit screens.
+   Fixed size in device pixels so it never scales into visible noise. */
+.hero::after{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.028;
+  background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:140px 140px;
+}
+.hero-art{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.hero-art-clip{position:absolute;inset:0}
+.hero-art svg{display:block;width:100%;height:100%}
+/* The stroke is taken out of the viewBox scale (non-scaling-stroke on the paths)
+   so it can be set in real pixels here. 0.125vw is the 2.4px the comp draws at 1920;
+   the floor keeps a phone from rendering it at half a pixel and the ceiling keeps
+   an ultrawide from turning it into a marker line. */
+#hero-art-ink,#hero-art-ghost{stroke-width:clamp(1.3px, 0.125vw, 3.2px)}
 
 /* ── motion ───────────────────────────────────────────────────────────────── */
 @keyframes reveal{to{opacity:1;transform:translateY(0)}}
-@keyframes skyline-reveal{
+@keyframes art-reveal{
   from{clip-path:inset(0 100% 0 0)}
   to{clip-path:inset(0 0 0 0)}
 }
@@ -253,9 +261,9 @@ main{padding-top:var(--header-h)}
 .reveal-2{animation-delay:150ms}
 .reveal-3{animation-delay:300ms}
 
-.skyline{
+.hero-art{
   clip-path:inset(0 100% 0 0);
-  animation:skyline-reveal 2500ms ease-out 600ms forwards;
+  animation:art-reveal 2500ms ease-out 600ms forwards;
 }
 
 /* Very short screens (a 568px phone, a netbook) spend so much of the viewport on
@@ -278,7 +286,7 @@ main{padding-top:var(--header-h)}
    would sit straight across the button, so it steps aside rather than being shrunk
    into an unreadable smear. */
 @media (max-height:430px){
-  .skyline{display:none}
+  .hero-art{display:none}
 }
 
 /* Scroll entry. The hidden state is scoped to .js-reveal, which the script adds
@@ -293,7 +301,7 @@ main{padding-top:var(--header-h)}
 
 @media (prefers-reduced-motion:reduce){
   .reveal{opacity:1;transform:none;animation:none}
-  .skyline{clip-path:none;animation:none}
+  .hero-art{clip-path:none;animation:none}
   .js-reveal .reveal-on-scroll{opacity:1;transform:none}
   .nav-center a::after{transition:none}
 }
@@ -377,11 +385,12 @@ main{padding-top:var(--header-h)}
       </div>
     </div>
 
-    <div class="skyline">
-      <div class="skyline-clip">
+    <div class="hero-art">
+      <div class="hero-art-clip">
         <!-- purely decorative: announcing it adds nothing for screen readers -->
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1905 300" aria-hidden="true" focusable="false">
-          <path id="skyline-line" d="M0,284.5Q146.3,284.9 292.6,286.2Q296.6,286.2 298.7,282.9L300.6,280Q302.7,276.6 303.1,272.6Q305.6,252.5 306.8,232.3Q307.1,228.3 311.1,228.3Q356.7,228.5 402.3,228.3Q406.3,228.3 408.7,231.4L410,233Q412.4,236.2 412.5,240.2Q412.2,253.3 413.2,266.4Q413.3,270.4 417.3,270.9L432.1,272.6Q436.1,273.1 436.3,269.1Q438,219.9 441.2,170.8Q441.4,166.8 445.4,166.7Q469.5,166.5 493.5,165.2Q497.5,165.1 497.7,169Q499.9,209.8 501.7,250.6Q501.9,254.6 502.3,250.6Q503.4,228.7 506,206.8Q506.3,202.8 510.3,202.8Q535.7,201.7 561.1,202Q565.1,201.9 565.3,205.9Q566.1,229.6 568.3,253.3Q568.6,257.3 572.6,257.3Q607.6,258.5 642.7,258.1Q646.7,258.1 649.5,260.2L650.9,261.3Q653.7,263.4 654.4,267.4L656.6,281.4Q657.2,285.4 661.2,285.5L676,286.1Q680,286.2 680.1,282.2Q681.4,213.4 682.6,144.5Q682.7,140.5 686.7,140.3Q712.1,139.1 737.5,138Q741.5,137.8 741.6,141.8Q742.7,175.6 744,209.4Q744.1,213.4 748.1,213.5Q770.9,214.4 793.6,215Q797.6,215.1 799.7,216.9L800.8,217.7Q802.9,219.5 802.9,223.5Q802.4,240.1 802.9,256.8Q802.9,260.8 803,256.8Q804.2,227.9 804.5,198.9Q804.7,194.9 808.6,195L830.5,195.7Q834.5,195.8 834.5,199.8Q835.1,239.7 835.3,279.6Q835.4,283.6 839.4,283.7Q856.4,284 873.5,284.4Q877.5,284.5 877.7,280.5Q878.9,264.8 879.1,249Q879.2,245 883.2,244.6L904.2,242.7Q908.2,242.3 909.3,238.5L911.5,230.4Q912.6,226.5 916.6,226.5Q942.4,226.3 968.2,226.5Q972.2,226.5 972.6,230.5Q974,245 975.4,259.4Q975.8,263.4 979.7,263.8L996.3,265.6Q1000.3,266 1001,270L1002.3,277.9Q1003,281.9 1005.8,283.3L1007.2,284Q1010,285.4 1010,281.4Q1010.2,209 1011.7,136.6Q1011.7,132.6 1014.6,129.7L1020.3,124Q1023.1,121.1 1027.1,121.1L1045.5,121.1Q1049.5,121.1 1049.7,125.1Q1042.5,200.9 1039.2,277Q1038.9,281 1039.7,277Q1050.6,153.2 1056.7,29Q1057,24 1062,23.4L1077,21.6Q1082,21 1082.8,25.9L1088.8,65.1Q1092.5,66.7 1094.4,70.2L1098.4,77.3Q1100.4,80.7 1100.5,84.7Q1105.3,183.1 1109.8,281.4Q1110,285.4 1114,285.3L1137.6,284.6Q1141.6,284.5 1142,280.5Q1144.2,255.5 1146.5,230.5Q1146.9,226.5 1150.9,226.4Q1178,225 1205.2,224.9Q1209.2,224.8 1209.5,220.8Q1211.6,188.7 1215,156.7Q1215.3,152.8 1219.3,153L1242.9,154.3Q1246.9,154.5 1247,158.5Q1248.9,219.5 1251.1,280.5Q1251.3,284.5 1255.3,284.3Q1273.2,284 1291.2,282.9Q1295.2,282.7 1295.2,278.7Q1294.9,264.3 1295.9,249.8Q1296,245.9 1299.5,244.1L1301.3,243.2Q1304.8,241.5 1305.3,237.5L1307,221.7Q1307.4,217.7 1311.4,218L1332.4,219.3Q1336.4,219.5 1336.8,223.5Q1338.4,243.2 1340.4,262.9Q1340.8,266.9 1344.8,267Q1361.8,268 1378.9,267.7Q1382.9,267.8 1384.7,266.4L1385.5,265.7Q1387.3,264.3 1387.4,260.3Q1387.8,207.2 1389,154.1Q1389,150.1 1393,150.2Q1418,150.7 1443,150.9Q1447,151 1447,155Q1448.1,210.7 1448.7,266.4Q1448.7,270.4 1450.5,271.5L1451.3,272Q1453.1,273.1 1456.8,271.6L1460.8,270.1Q1464.5,268.7 1464.8,264.7Q1465.5,248.5 1466.9,232.3Q1467.1,228.3 1471.1,228.1L1489.5,227.5Q1493.5,227.4 1494.4,223.5L1496.9,212.9Q1497.9,209 1501.9,209L1525.4,209Q1529.4,209 1530.1,212.9Q1532.1,225.6 1534.1,238.4Q1534.7,242.3 1538.7,242.4Q1580.8,243.5 1622.8,244Q1626.8,244.1 1627.6,248Q1631.1,264.7 1634,281.4Q1634.7,285.4 1638.7,285.4Q1771.9,284.8 1905,285.4" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">
+          <path id="hero-art-ghost" d="M92,350.3Q122.4,346.3 152.9,343.4M334.4,323.1Q368.2,319.3 401.9,315M416,700L416.4,711.1M402.8,316Q404.6,353.1 405,390.4M413.7,633.7Q414.5,666.8 416.4,700M407.4,386.4Q410.3,522.7 417.3,658.8M106,734L98.4,734.8M416,699.7Q383.3,702.6 350.8,707M170.4,726.9Q138.2,730.2 106,733.8M106.7,734Q105.8,695 103.4,656M94.4,415.9Q92.5,383 92,350M108.1,714.3Q102.1,555.3 96.5,396.2M262,374.3Q275.8,373.2 289.6,372M370.5,365.3Q382.3,364.6 393.9,362.6M392.8,364Q393.8,376.6 394.1,389.2M397.5,530Q397.4,548 398.5,566M397.1,399.6Q398.9,472.5 400,545.4M398.1,567.2Q384.1,567.1 370.3,568.5M297.6,573.8Q281.9,576 266.1,576.7M265.6,576Q265.7,562.3 265.3,548.6M262.5,402.7Q262.8,388.3 261.8,374M268.5,544.8Q266.5,468.2 265.5,391.7M105.5,734Q106.9,744.3 106.6,754.7M109.1,816.1Q110.2,826 109.7,836M414.9,699.9Q415,694.1 416.4,688.5M419,648.8Q419.4,644.4 418.9,639.9M244,588L258.7,587.1M142,594.6Q153.2,594 164.2,592.9M227.7,589.5Q235.9,589.4 244.1,589.5M248,790L248.2,797.8M243.1,588Q243.1,607.2 244.5,626.4M247.2,749.9Q247,769.9 248,790M241.4,603Q243.5,678.8 244.4,754.6M146,796L135.3,796.6M248,789.4Q241.7,789.4 235.6,790.5M167.2,794.8Q156.6,795.4 146,796.1M142,594L141.8,584.3M147.1,796Q147.1,779.8 145.7,763.8M143.4,638.4Q143.4,616.2 143.4,594M147.6,771.4Q145.4,696.8 144.7,622.1M508.7,442Q509.1,465.8 510.5,489.6M515.1,696.3Q515.9,719.2 516,742M507.9,487.6Q509.9,600.2 512.4,712.7M462,750L447.8,752.1M462.1,750Q461.1,718.3 460.8,686.6M457.9,521.9Q458,485.9 457.4,450M464.1,696.4Q462.7,599.3 460.2,502.1M451.9,735.2Q459.2,735.6 466.4,734.4M507.2,730.9Q512.5,730.1 518,729.9M518,687.6Q524.4,687.2 530.8,687M570.8,684.5Q575.4,683.6 580,683.8M579.9,644.8Q584.6,645.6 589.3,645M631.8,643.1Q636.9,643.9 642.1,643.4M651.7,842Q652.6,815.3 652.7,788.5M655.2,609.7Q655.5,587.8 655.5,566M655.6,816.5Q656.5,720.7 658.3,625M735.8,566Q735.9,575.5 736.5,584.9M739.8,683.8Q740.1,693.9 741.2,704M734.2,577.9Q735.1,626.4 737.1,674.9M799.7,844Q799.2,834.5 798.9,825M799.1,753.8Q799.2,740.9 798.8,728M799.9,727.1Q805.9,727.3 811.8,727M856.2,724.3Q861.1,723.9 866,723.2M868,842L868.2,853.3M867.3,724Q866.6,732.1 866.7,740.3M867.9,825.4Q868.2,833.7 868.5,842M864.1,739.2Q865.8,780.7 865.5,822.1M868,842.5Q862.3,842.8 856.5,842.5M811.4,843.7Q804.7,844 798,844.1M740.1,705.1Q747.3,705 754.4,703.5M790.2,700.8Q798.1,699.9 806,699.4M812.1,687.6Q822.2,686.6 832.5,685.9M914,682.6Q924,682.8 934,681.9M1038.5,528.9Q1065.2,515 1091.6,500.4M1384.8,346.9Q1418.1,328.9 1451.8,311.5M1111.9,491.8Q1245,423.3 1377.3,353.3M1472.3,328Q1472.1,360.1 1472.7,392.2M1474.9,731.3Q1474.1,768.7 1474.6,806M1474.4,361.7Q1475.1,539.6 1477.3,717.5M1052.2,572.4Q1078.2,558.1 1104.6,544.6M1361.3,410.8Q1403.8,388.7 1446.5,367M1052,571.5Q1067.1,572.4 1082.3,572.3M1169.8,573.1Q1182.9,572.6 1196,572.5M1445.4,366Q1445.2,400.3 1446.6,434.6M1449,635.1Q1448.4,662.6 1449.1,690M1196,485Q1202.9,483.7 1209.8,483.8M1283.3,480.5Q1290.6,480 1298,479.8M1302,600L1302.3,607.9M1297.2,480Q1298.3,491.6 1298.5,503.3M1301.6,575.2Q1303.1,587.5 1303.1,600M1295.3,491.9Q1294.8,541.3 1298.6,590.6M1302,600.6Q1292.3,601 1282.6,601M1219.8,603.8Q1210,604.9 1200.1,605.7M1196,484L1195.8,477.1M1201.6,603.9Q1200.9,594.9 1200,585.9M1196.4,509Q1196.2,496.5 1194.9,484M1338,700L1344.7,700.2M944,688.9Q982.7,689.4 1021.5,690.7M1264.6,698.2Q1301.2,700.1 1338,701.2M1339,700Q1338.4,713.4 1338.7,726.8M1340.1,810Q1341.6,827 1341.6,844M1335.9,720.8Q1336.9,773.9 1337.4,827.1M948,836L941.5,835.9M1340,844.5Q1304.7,843.9 1269.4,842.8M1006.6,837.3Q977.3,837.1 948,836.3M947.5,836Q947.3,819.8 947,803.5M944.1,711.4Q942.5,699.8 942.3,688M944.4,816.7Q944,764.5 941.6,712.3M1489.8,337.2Q1496.1,338.3 1502.4,338.8M1538.1,344.9Q1545.3,345.3 1552.2,346.9M1551.1,348Q1552.1,395.1 1552.5,442.3M1555.2,720.3Q1555.3,760.2 1555.7,800M1549.4,395.3Q1550.9,571.5 1552.5,747.7M1556.1,798.9Q1551.2,798.7 1546.4,798.7M1506.9,794.7Q1500.6,793.2 1494.1,792.5M1490,336L1489.9,324.1M1492.4,794Q1492.2,763.6 1492.9,733.1M1490.5,401.7Q1490.2,368.8 1489.9,336M1496.6,745.3Q1496.7,570.5 1493.6,395.8M1575.2,356Q1575,395.1 1575.1,434.3M1576.9,702.4Q1577.8,751.2 1577.4,800M1577.9,414.3Q1578.3,593.1 1581.1,771.9" fill="none" stroke="rgba(255,255,255,0.27)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+          <path id="hero-art-ink" d="M92,350Q247,332.8 402,316M402,316Q410,508 416,700M416,700Q261.1,718 106,734M106,734Q99.5,542 92,350M262,374Q328,369.1 394,364M394,364Q395.6,465 398,566M398,566Q332,571.2 266,576M266,576Q263.1,475 262,374M106,734Q108.6,785 110,836M416,700Q417.7,670 420,640M142,594Q193,591.6 244,588M244,588Q245.7,689 248,790M248,790Q197,792.8 146,796M146,796Q143.2,695 142,594M456,450Q482.9,445.3 510,442M510,442Q512.3,592 516,742M516,742Q489.1,747 462,750M462,750Q459.7,600 456,450M452,736Q485,733.4 518,730M518,730Q517.3,709 518,688M518,688Q549,686.2 580,684M580,684Q579.8,665 580,646M580,646Q611.1,644.9 642,642M652,842Q653.1,704 656,566M656,566Q678,553 700,540M700,540Q718.1,552.9 736,566M736,566Q738.9,635 740,704M798,844Q798.9,786 800,728M800,728Q833,726 866,724M866,724Q866.3,783 868,842M868,842Q833,843.4 798,844M740,704Q773,702.3 806,700M806,700Q809.5,693.2 812,686M812,686Q873,683.3 934,682M1038,528Q1245.4,420.8 1452,312M1452,312Q1462,320.1 1472,328M1472,328Q1474.7,567 1476,806M1038,528Q1044.8,550.1 1052,572M1052,572Q1248.5,468.1 1446,366M1446,366Q1448.8,339 1452,312M1052,572Q1124,573.2 1196,574M1446,366Q1448,528 1450,690M1196,484Q1247,482.5 1298,480M1298,480Q1299.4,540 1302,600M1302,600Q1251,601.8 1200,604M1200,604Q1198.3,544 1196,484M944,688Q1141,694.4 1338,700M1338,700Q1339.7,772 1340,844M1340,844Q1144,839.8 948,836M948,836Q945.7,762 944,688M1196,574Q1199,588.9 1200,604M1490,336Q1520.9,342.6 1552,348M1552,348Q1553,574 1556,800M1556,800Q1525,796.6 1494,794M1494,794Q1491.1,565 1490,336M1572,356Q1586.1,357.3 1600,360M1576,800Q1587.9,798.1 1600,798M1574,356Q1575.6,578 1578,800" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
         </svg>
       </div>
     </div>
