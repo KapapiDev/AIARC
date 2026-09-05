@@ -25,16 +25,38 @@ const fs = require('fs');
 const path = require('path');
 
 const SRC = process.env.ART_SVG ||
-  path.join(process.env.USERPROFILE || process.env.HOME || '', 'Desktop', 'AIARC 라인그래픽.svg');
+  path.join(process.env.USERPROFILE || process.env.HOME || '', 'Desktop', 'AIARC 라인그래픽-두께수정.svg');
 const DEST = path.join(__dirname, '..', 'index.html');
 
 function prepare(raw) {
   let s = raw;
 
-  // strip what cannot live inside an HTML body
+  // --- strip the envelope -----------------------------------------------------
+  // None of this is artwork. An export saved with "Preserve Illustrator Editing
+  // Capabilities" wraps the drawing in a lot of Adobe scaffolding, and most of it
+  // is either invalid inside an HTML body or dead weight:
+  //
+  //   * a DOCTYPE whose internal subset declares the &ns_*; entities. HTML has no
+  //     internal subset, so leaving the entity references behind would be a parse
+  //     error - the DOCTYPE and every attribute that uses one have to go together.
+  //   * <switch> + <foreignObject requiredExtensions="&ns_ai;">, which points at
+  //     the editing blob. Browsers already fall through it; unwrapping removes a
+  //     branch that only Illustrator takes.
+  //   * <i:aipgf>, the editing blob itself - zstd/base64, and in this export 935KB
+  //     of a 1.04MB file. Inlined it would have put ~900KB of dead base64 into
+  //     every page load.
   s = s.replace(/<\?xml[^>]*\?>\s*/g, '');
   s = s.replace(/<!--[\s\S]*?-->\s*/g, '');
+  s = s.replace(/<!DOCTYPE[^[>]*(\[[\s\S]*?\])?\s*>\s*/gi, '');
+  s = s.replace(/<i:aipgf\b[\s\S]*?<\/i:aipgf>\s*/gi, '');
+  s = s.replace(/<foreignObject\b[\s\S]*?<\/foreignObject>\s*/gi, '');
+  s = s.replace(/<\/?switch>\s*/gi, '');
+  // the namespace declarations and attributes that referenced those entities
+  s = s.replace(/\s+xmlns:(?:x|i|graph)="[^"]*"/g, '');
+  s = s.replace(/\s+(?:i|x|graph):[\w-]+="[^"]*"/g, '');
   s = s.trim();
+
+  if (/&ns_\w+;/.test(s)) throw new Error('an undefined entity reference survived the strip');
 
   const open = s.match(/<svg\b[^>]*>/);
   if (!open) throw new Error('no <svg> element found');
@@ -130,7 +152,11 @@ if (process.argv[2] === '--check') {
   report(verify.viewBox === '0 0 1920 1080', `viewBox unchanged: ${verify.viewBox}`);
   report(verify.hasClean && verify.hasTexture, 'CLEAN and TEXTURE groups both present');
   report(verify.polylines === 1, `CLEAN is one continuous polyline (${verify.polylines})`);
-  report(verify.paths === 40 && verify.polygons === 3, `TEXTURE intact: ${verify.paths} paths, ${verify.polygons} polygons`);
+  const src = { paths: (raw.match(/<path/g) || []).length,
+                polygons: (raw.match(/<polygon/g) || []).length,
+                polylines: (raw.match(/<polyline/g) || []).length };
+  report(verify.paths === src.paths && verify.polygons === src.polygons && verify.polylines === src.polylines,
+    `every shape survived: ${verify.paths} paths, ${verify.polygons} polygons, ${verify.polylines} polyline`);
   report(verify.transformsAdded === 0, 'no transform added anywhere');
   report(verify.ourRootId, 'the root svg carries exactly one id, ours' +
     (verify.rootIds ? ' (the export had its own, dropped)' : ''));
@@ -140,6 +166,9 @@ if (process.argv[2] === '--check') {
   report(verify.knockouts > 0,
     `${verify.knockouts} unclassed shapes, painted the page colour as knockouts`);
   report(!/<style>[^<]*[^ ]\.st/.test(svg.replace(/#hero-art-svg \.st/g, '')), 'exported class rules are scoped to the svg');
+  report(!/&ns_|<i:aipgf|<switch|<!DOCTYPE/i.test(svg), 'no Illustrator envelope left in the embed');
+  const shed = raw.length - svg.length;
+  report(shed >= 0, `${(svg.length / 1024).toFixed(0)}KB embedded, ${(shed / 1024).toFixed(0)}KB of envelope dropped`);
   process.exit(bad ? 1 : 0);
 }
 
