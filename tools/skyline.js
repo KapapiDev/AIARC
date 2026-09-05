@@ -24,7 +24,7 @@ function rnd() {
   seed = (seed * 1664525 + 1013904223) % 4294967296;
   return seed / 4294967296;
 }
-const jit = (a) => (rnd() - 0.5) * 2 * a;
+const jit = (a) => (rnd() - 0.5) * 2 * a * 0.55;
 
 const r = (n) => Math.round(n * 10) / 10;
 const pts = [];
@@ -40,27 +40,23 @@ const to = (x, y) => pts.push([x, y]);
 //   spire - carries a thin mast
 //   twin  - two narrow towers in one gesture, dipping between without reaching ground
 const plan = [
-  [158, 26, 150, 'block'],
-  [182, 16, 132, 'block'],
-  [203, 14, 116, 'block'],
-  [215, 16, 108, 'peak'],
-  [234, 20, 106, 'twin'],
-  [252, 13, 140, 'block'],
-  [266, 22, 124, 'spire'],
-  [287, 15, 152, 'block'],
-  [305, 26, 133, 'block'],
-  [328, 14, 118, 'block'],
-  [349, 23, 151, 'block'],
-  [370, 17, 137, 'block'],
-  [396, 28, 160, 'block'],
-  [424, 19, 145, 'block'],
-  [452, 26, 168, 'block'],
+  [150, 44, 154, 'block'],
+  [186, 30, 138, 'block'],
+  [210, 26, 124, 'block'],
+  [232, 34, 142, 'block'],
+  [258, 26, 118, 'block'],
+  [278, 32, 108, 'peak'],
+  [303, 24, 114, 'block'],
+  [321, 36, 134, 'spire'],
+  [350, 28, 146, 'block'],
+  [372, 44, 158, 'block'],
+  [410, 34, 168, 'block'],
 ];
 
 to(0, BASE + jit(0.6));
 to(40, BASE + jit(0.8));
 
-for (const [x, w, top, kind] of plan) {
+plan.forEach(([x, w, top, kind], idx) => {
   to(x - 3 + jit(1.2), BASE + jit(0.8));        // approach along the ground
   to(x + jit(1.4), top + jit(1.6));             // up the left edge, slightly off-vertical
 
@@ -84,10 +80,11 @@ for (const [x, w, top, kind] of plan) {
     to(x + w + jit(1.4), top + jit(1.6));       // across the roof
   }
 
-  // down the right edge and PAST the ground, then back up: this is the crossing
-  to(x + w + jit(1.6), BASE + 2 + rnd() * 7);
-  to(x + w + 2 + jit(1.5), BASE + jit(0.7));
-}
+  // Only some buildings drop a stub below the ground line. The crossings come from
+  // the overlaps, so they do not need one each, and one per building read as a fringe.
+  if (idx % 3 === 1) to(x + w + jit(1.2), BASE + 2 + rnd() * 3);
+  to(x + w + 2 + jit(1.2), BASE + jit(0.6));
+});
 
 to(586, BASE + jit(0.8));
 to(630, BASE + jit(0.6));
@@ -126,7 +123,7 @@ if (process.argv[2] === '--check') {
   report(hits >= plan.length, `${hits} self-intersections (>= ${plan.length}, one per building)`);
 
   const dips = ys.filter((y) => y > BASE + 1.5).length;
-  report(dips >= plan.length, `${dips} descenders cross the ground line`);
+  report(dips >= 3 && dips < plan.length, `${dips} descenders, on some buildings but not all`);
 
   report(!/NaN|undefined/.test(d), 'no NaN in path');
   process.exit(bad ? 1 : 0);
