@@ -144,22 +144,29 @@ if (process.argv[2] === '--check') {
 }
 
 if (process.argv[2] === '--sync') {
-  let html = fs.readFileSync(DEST, 'utf8');
+  // The page and the social card carry the same artwork from the same master, so
+  // they cannot drift. Both mark the spot with the same container class; the card
+  // then leaves the reveal mask open in its own CSS, since a still has nothing to
+  // animate.
+  for (const file of [DEST, path.join(__dirname, 'og-card.html')]) {
+    if (!fs.existsSync(file)) continue;
+    let html = fs.readFileSync(file, 'utf8');
 
-  // Anchor on the slot, not on "the first <svg> in the file". A lazy
-  // <svg>...</svg> match starts at the hamburger icon near the top of the body
-  // and swallows everything down to the hero's closing tag - it ate the whole
-  // hero the first time this ran. Find the container, then the svg inside it.
-  const slot = html.indexOf('<div class="hero-art-clip">');
-  if (slot < 0) { console.error('hero-art-clip not found in index.html'); process.exit(1); }
-  const start = html.indexOf('<svg', slot);
-  const end = html.indexOf('</svg>', start);
-  if (start < 0 || end < 0 || start > slot + 400) { console.error('no svg inside hero-art-clip'); process.exit(1); }
-  const indented = svg.split('\n').join('\n        ');
-  html = html.slice(0, start) + indented + html.slice(end + '</svg>'.length);
-  fs.writeFileSync(DEST, html);
-  console.log(`embedded ${path.basename(SRC)}: viewBox ${verify.viewBox}, ` +
-    `${verify.polylines} polyline, ${verify.paths} paths, ${verify.polygons} polygons, ${svg.length} chars`);
+    // Anchor on the slot, not on "the first <svg> in the file". A lazy
+    // <svg>...</svg> match starts at the hamburger icon near the top of the body
+    // and swallows everything down to the hero's closing tag - it ate the whole
+    // hero the first time this ran. Find the container, then the svg inside it.
+    const slot = html.indexOf('<div class="hero-art-clip">');
+    if (slot < 0) { console.error(`hero-art-clip not found in ${path.basename(file)}`); process.exit(1); }
+    const start = html.indexOf('<svg', slot);
+    const end = html.indexOf('</svg>', start);
+    if (start < 0 || end < 0 || start > slot + 400) { console.error(`no svg inside hero-art-clip in ${path.basename(file)}`); process.exit(1); }
+    const indented = svg.split('\n').join('\n        ');
+    html = html.slice(0, start) + indented + html.slice(end + '</svg>'.length);
+    fs.writeFileSync(file, html);
+    console.log(`embedded into ${path.basename(file)}: viewBox ${verify.viewBox}, ` +
+      `${verify.polylines} polyline, ${verify.paths} paths, ${verify.polygons} polygons, ${svg.length} chars`);
+  }
   process.exit(0);
 }
 
