@@ -45,7 +45,12 @@ function prepare(raw) {
     .replace(/\s+x="0px"/, '')
     .replace(/\s+y="0px"/, '')
     .replace(/\s+style="enable-background:[^"]*"/, '')
-    .replace(/\s+xml:space="preserve"/, '');
+    .replace(/\s+xml:space="preserve"/, '')
+    // Illustrator writes the layer name as the root id (id="레이어_1"). Leaving it
+    // means the tag carries two ids, the browser keeps the first, ours is ignored,
+    // and every scoped .st rule silently stops matching - the artwork renders
+    // unstyled. Drop whatever is there and set our own.
+    .replace(/\s+id="[^"]*"/, '');
 
   if (!/preserveAspectRatio=/.test(tag)) {
     // meet, not slice: the brief is explicit that the artwork's own internal
@@ -91,6 +96,8 @@ function prepare(raw) {
     hasClean: /id="CLEAN"/.test(s),
     hasTexture: /id="TEXTURE"/.test(s),
     transformsAdded: (s.match(/transform=/g) || []).length,
+    rootIds: (open[0].match(/\sid="/g) || []).length,
+    ourRootId: (tag.match(/\sid="[^"]*"/g) || []).length === 1 && /id="hero-art-svg"/.test(tag),
     cleanInMask: /<mask id="art-reveal"[\s\S]*?<g id="CLEAN">/.test(s),
     textureMasked: /<g id="TEXTURE" mask="url\(#art-reveal\)"/.test(s),
     cleanOutsideMask: /<\/mask>[\s\S]*<g id="CLEAN">/.test(s),
@@ -116,6 +123,8 @@ if (process.argv[2] === '--check') {
   report(verify.polylines === 1, `CLEAN is one continuous polyline (${verify.polylines})`);
   report(verify.paths === 40 && verify.polygons === 3, `TEXTURE intact: ${verify.paths} paths, ${verify.polygons} polygons`);
   report(verify.transformsAdded === 0, 'no transform added anywhere');
+  report(verify.ourRootId, 'the root svg carries exactly one id, ours' +
+    (verify.rootIds ? ' (the export had its own, dropped)' : ''));
   report(verify.cleanInMask, 'CLEAN lives inside the mask, so it is never painted');
   report(!verify.cleanOutsideMask, 'no second copy of CLEAN outside the mask');
   report(verify.textureMasked, 'TEXTURE is masked by the CLEAN reveal');
