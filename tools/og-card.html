@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>AIARC OG card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Noto+Sans+KR:wght@400&family=Noto+Serif+KR:wght@400&display=swap" rel="stylesheet">
+<style>
+/* Source for the 1200x630 social card. Render this at exactly 1200x630 and
+   screenshot it to produce og.png. Same tokens as the site so the card and the
+   page read as one thing. Skyline paths are kept in sync by tools/skyline.js. */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  width:1200px;height:630px;overflow:hidden;position:relative;
+  background:#181818;color:#eeeeee;
+  font-family:'Inter','Noto Sans KR',sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wordmark{
+  position:absolute;top:56px;left:64px;z-index:1;
+  font-size:26px;font-weight:500;letter-spacing:.055em;line-height:1;
+}
+.copy{
+  position:absolute;top:170px;left:64px;right:64px;z-index:1;
+}
+h1{
+  margin:0;font-family:'Libre Baskerville','Noto Serif KR',serif;font-weight:400;
+  font-size:68px;line-height:1.15;letter-spacing:-.025em;word-break:keep-all;
+}
+h1 .line{display:block}
+p{
+  margin:28px 0 0;max-width:760px;
+  font-size:23px;line-height:1.6;color:#a4a19b;word-break:keep-all;
+}
+/* The svg is 1200 * 360/630 = 685.7px tall and its baseline sits at y=177 of the
+   360 viewBox, i.e. 337.1px down. Top = 630 - 337.1 puts that baseline flush with
+   the bottom edge, so the buildings occupy the lower band instead of the headline. */
+.skyline{position:absolute;left:0;right:0;top:293px;width:100%}
+.skyline svg{display:block;width:100%;height:auto}
+#skyline-front{fill:#181818}
+</style>
+</head>
+<body>
+  <div class="wordmark">AIARC</div>
+
+  <div class="copy">
+    <h1>공사가 끝나도 <span class="line">서류는 끝나지 않습니다.</span></h1>
+    <p>받은 서류는 정리하고, 빠진 자료는 요청하고, 최종 제출까지 추적합니다.</p>
+  </div>
+
+  <div class="skyline">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 630 360" preserveAspectRatio="none" aria-hidden="true">
+      <path id="skyline-back" d="M 0,177 L 40,177 L 40,150 L 90,150 L 90,142 L 118,142 L 118,177 L 160,177 L 160,128 L 190,128 L 190,118 L 196.6,118 L 196.6,111 L 205.4,111 L 205.4,118 L 212,118 L 212,177 L 270,177 L 270,150 L 314,150 L 314,142 L 340,142 L 340,177 L 400,177 L 400,132 L 432,132 L 432,140 L 470,140 L 470,177 L 505,177 L 505,146 L 535,146 L 535,158 L 561,158 L 561,177 L 630,177" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.16"/>
+      <path id="skyline-front" d="M 0,177 L 0,166 L 26,166 L 26,158 L 35,152 L 44,158 L 44,152 L 74,152 L 74,144 L 78.2,144 L 78.2,137 L 83.8,137 L 83.8,144 L 88,144 L 88,177 L 96,177 L 96,148 L 130,148 L 130,136 L 146,136 L 146,142 L 149.4,142 L 149.4,138 L 153.2,138 L 153.2,134 L 162.8,134 L 162.8,138 L 166.6,138 L 166.6,142 L 170,142 L 170,177 L 178,177 L 178,138 L 200,138 L 200,118 L 203.1,118 L 204.6,103.7 L 206,95 L 207.4,103.7 L 208.9,118 L 212,118 L 212,130 L 238,130 L 238,124 L 245,124 L 245,112 L 245,124 L 252,124 L 252,177 L 260,177 L 260,156 L 300,156 L 300,148 L 310,142 L 320,148 L 320,158 L 344,158 L 344,177 L 352,177 L 352,142 L 358.6,142 L 358.6,134 L 367.4,134 L 367.4,142 L 374,142 L 374,148 L 408,148 L 408,136 L 411.2,136 L 411.2,127 L 420.8,127 L 420.8,136 L 424,136 L 424,177 L 432,177 L 432,138 L 458,138 L 458,128 L 464.5,128 L 464.5,113 L 464.5,128 L 471,128 L 471,133 L 474.4,133 L 474.4,128.5 L 478.2,128.5 L 478.2,124 L 487.8,124 L 487.8,128.5 L 491.6,128.5 L 491.6,133 L 495,133 L 495,146 L 525,146 L 525,177 L 533,177 L 533,156 L 561,156 L 561,164 L 572,159 L 583,164 L 583,172 L 603,172 L 603,177 L 630,177" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill-opacity="1" stroke-opacity="0.4"/>
+    </svg>
+  </div>
+</body>
+</html>

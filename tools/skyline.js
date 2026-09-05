@@ -152,15 +152,21 @@ if (process.argv[2] === '--check') {
 
 if (process.argv[2] === '--sync') {
   const fs = require('fs');
-  const file = require('path').join(__dirname, '..', 'index.html');
-  let html = fs.readFileSync(file, 'utf8');
-  for (const [name, d] of Object.entries(paths)) {
-    const re = new RegExp(`(<path id="skyline-${name}" d=")[^"]*(")`);
-    if (!re.test(html)) { console.error(`skyline-${name} not found in index.html`); process.exit(1); }
-    html = html.replace(re, (m, a, b) => a + d + b);
+  const path = require('path');
+  // the social card reuses the same silhouette, so it is synced from here too
+  const targets = ['index.html', path.join('tools', 'og-card.html')];
+  for (const rel of targets) {
+    const file = path.join(__dirname, '..', rel);
+    if (!fs.existsSync(file)) continue;
+    let html = fs.readFileSync(file, 'utf8');
+    for (const [name, d] of Object.entries(paths)) {
+      const re = new RegExp(`(<path id="skyline-${name}" d=")[^"]*(")`);
+      if (!re.test(html)) { console.error(`skyline-${name} not found in ${rel}`); process.exit(1); }
+      html = html.replace(re, (m, a, b) => a + d + b);
+    }
+    fs.writeFileSync(file, html);
+    console.log(`synced ${rel}`);
   }
-  fs.writeFileSync(file, html);
-  console.log(`synced front ${paths.front.length} / back ${paths.back.length} chars`);
   process.exit(0);
 }
 
