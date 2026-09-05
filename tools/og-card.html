@@ -34,17 +34,15 @@ p{
   margin:28px 0 0;max-width:760px;
   font-size:23px;line-height:1.6;color:#a4a19b;word-break:keep-all;
 }
-/* The svg is 1200 * 360/630 = 685.7px tall and its baseline sits at y=177 of the
-   360 viewBox, i.e. 337.1px down. 276 puts that ground line at y=613, leaving room
-   for the descenders that stab below it instead of cropping them at the edge. */
-.skyline{position:absolute;left:0;right:0;top:276px;width:100%}
+/* At the card's full 1200px the drawing is 293px tall and lands on the strapline,
+   so it is inset and centred here. The reference drawing's own ground line stops
+   short of its frame too, so an inset card reads as the same picture. */
+.skyline{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;width:850px}
 .skyline svg{display:block;width:100%;height:auto}
-/* The viewBox transform scales the stroke with the viewport, so a declared 1.5
-   became 4.5px at 1920 and the hairline read as a heavy outline. Pinning it to a
-   flat 1.5px went too far the other way: at 1920 the drawing is 272px tall, and
-   the reference's line is about 1.1% of its drawing height. 0.16vw holds that
-   ratio at every width, with a cap so ultrawide screens do not thicken it again. */
-#skyline-line{vector-effect:non-scaling-stroke;stroke-width:1.9px}
+/* The reference's line is 1.5px on a 451px-wide drawing. The path is scaled into
+   this viewBox by 630/451, so 1.5 * that keeps the line the same weight relative
+   to the drawing at every size. */
+#skyline-line{stroke-width:2.1}
 </style>
 </head>
 <body>
@@ -56,8 +54,8 @@ p{
   </div>
 
   <div class="skyline">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 630 360" preserveAspectRatio="none" aria-hidden="true">
-      <path id="skyline-line" d="M 0,176 L 234,176 L 234.9,176.1 L 234.4,139.3 L 260.6,139 L 260.3,176.3 L 261,175.6 L 260.4,105.5 L 279.8,105.8 L 279.5,176.1 L 282.2,175.9 L 282.4,141.3 L 287.7,140.6 L 287.7,176.4 L 288.4,176.2 L 288.7,96.5 L 301.4,96.5 L 300.8,175.9 L 302.4,175.8 L 301.9,113.9 L 315.5,114.2 L 314.4,176.4 L 315.9,176.2 L 315.3,158.9 L 322.3,159 L 322.5,176.2 L 324.1,175.5 L 323.9,145.7 L 330,145.5 L 341.4,146.3 L 342,67 L 342.9,145.7 L 331.4,84.1 L 339.3,84.2 L 338.7,176 L 344.6,175.5 L 343.6,82.4 L 350.6,83.2 L 350.7,175.7 L 352,176.3 L 352.2,151.3 L 364.9,151.1 L 364.5,175.6 L 365.6,176.1 L 365.8,110 L 388.7,110.3 L 389.2,175.6 L 391.3,175.7 L 392.3,148.2 L 405.4,148 L 405.5,175.5 L 406.4,176.4 L 407.4,161.4 L 425.4,161.3 L 426.2,176.2 L 427,176 L 630,176" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 630 166" preserveAspectRatio="none" aria-hidden="true">
+      <path id="skyline-line" d="M 0,158 L 96,158 L 170,158 L 196.6,158 L 203.6,157.3 L 203.6,106.3 L 223.1,105.6 L 242.7,104.9 L 241.3,127.3 L 240.6,149.6 L 239.2,121.7 L 239.2,60.2 L 251.1,59.5 L 265,60.2 L 265.7,84 L 265.7,107 L 255.2,107 L 267.8,107.7 L 277.6,107.7 L 275.5,127.3 L 275.5,146.8 L 276.9,93.7 L 277.6,45.5 L 286,45.5 L 294.4,46.2 L 295.8,79.8 L 295.8,117.5 L 294.4,93.7 L 294.4,70 L 304.1,70 L 312.5,70 L 313.2,100.7 L 313.2,130.1 L 284.6,132.2 L 304.1,132.9 L 323.7,132.9 L 326.5,142.6 L 326.5,152.4 L 325.8,132.9 L 325.8,115.4 L 333.5,115.4 L 340.5,116.1 L 340.5,134.3 L 337.7,134.3 L 337,79.8 L 337,28.8 L 349.5,27.8 L 350.2,15.5 L 350.9,4.3 L 353,28.1 L 354.4,51.8 L 356.5,68.6 L 357.2,82.6 L 358.2,96.5 L 358.6,110.5 L 360,123.1 L 358.6,132.9 L 351.6,132.9 L 344.6,132.9 L 343.3,121.7 L 344.6,107.7 L 346,93.7 L 347.4,79.8 L 348.4,65.8 L 348.8,51.8 L 349.3,28.1 L 355.8,27.3 L 362.8,26.7 L 362.8,74.2 L 363.5,123.1 L 374,122.7 L 385.2,122.4 L 387.3,132.9 L 388,144 L 386.6,107.7 L 386.6,64.4 L 401.9,64.4 L 417.3,64.4 L 418,104.9 L 418.7,144 L 421.5,143.3 L 421.5,130.1 L 421.5,117.5 L 429.9,117.5 L 439.6,117.5 L 439.6,127.3 L 440.3,134.3 L 431.3,135.6 L 449.4,136.3 L 467.6,137 L 468.3,148.2 L 468.3,158 L 499.7,157.6 L 527.6,158 L 533.2,158 L 630,158" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
     </svg>
   </div>
 </body>

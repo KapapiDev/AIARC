@@ -190,8 +190,11 @@ main{padding-top:var(--header-h)}
   padding:0 24px;overflow:hidden;
 }
 
-/* top:20% and top:30% are Altitude's own anchors — they keep the headline and the
-   line graphic pinned to the same fractions of the viewport at every height */
+/* top:20% is Altitude's own anchor for the headline. The line graphic used to use
+   top:30% the same way, but at the reference's real scale the drawing is tall
+   enough that a fraction-of-viewport anchor walks it up into the CTA on short
+   screens. It is bottom-anchored instead — the ground line sits just above the
+   fold and the city grows upward from there. */
 .hero-copy{
   position:absolute;top:20%;left:50%;transform:translateX(-50%);z-index:1;
   width:100%;max-width:896px;padding:0 24px;text-align:center;
@@ -216,15 +219,35 @@ main{padding-top:var(--header-h)}
 }
 .hero-cta{margin-top:40px;display:flex;align-items:center;justify-content:center}
 
-.skyline{position:absolute;top:30%;left:0;right:0;width:100%;pointer-events:none}
-.skyline-clip{width:100%;overflow:hidden}
-.skyline svg{display:block;width:100%;min-width:900px;height:auto}
-/* The viewBox transform scales the stroke with the viewport, so a declared 1.5
-   became 4.5px at 1920 and the hairline read as a heavy outline. Pinning it to a
-   flat 1.5px went too far the other way: at 1920 the drawing is 272px tall, and
-   the reference's line is about 1.1% of its drawing height. 0.16vw holds that
-   ratio at every width, with a cap so ultrawide screens do not thicken it again. */
-#skyline-line{vector-effect:non-scaling-stroke;stroke-width:clamp(1.3px,0.16vw,3.2px)}
+.skyline{position:absolute;bottom:var(--header-h);left:0;right:0;width:100%;pointer-events:none}
+.skyline-clip{width:100%;overflow:hidden;display:flex;justify-content:center}
+/* The graphic is as tall as it is wide-times-0.2566, and what is left for it is
+   the viewport minus the hero copy: about 0.8vh - 351px once the CTA, the gap
+   under the ground line and 24px of clearance are taken out. Solving the two
+   gives this cap. Without it the drawing lands on the Download button on any
+   1.6-ratio screen (1600x900, 1366x768, 1280x800 all collide). 900px is the
+   floor, so a phone still gets a legible slice rather than a hairline. */
+.skyline svg{
+  display:block;height:auto;
+  width:100%;
+  /* Floor, so a phone gets a legible slice of the city rather than a hairline —
+     itself backed off on a short phone (360x640) where the taller three-line
+     headline leaves the drawing less room than a desktop's. */
+  /* max(0px,...) matters: a negative calc is an invalid length and the whole
+     declaration would be dropped, which on a landscape phone would put a
+     full-width drawing straight through the copy. Clamped to 0 the graphic
+     simply steps aside instead. */
+  min-width:max(0px, min(900px, calc(240vh - 1000px)));
+  max-width:max(0px, calc(311.7vh - 1368px));
+}
+/* The reference's line is 1.5px on a 451px-wide drawing. The path is scaled into
+   this viewBox by 630/451, so 1.5 * that keeps the line the same weight relative to
+   the drawing at every screen width. Pinning it in CSS px instead made it thinner
+   the larger the drawing got, which is what flattened it into a faint outline. */
+/* min-width keeps the drawing legible below 900px; centring the overflow means a
+   narrow screen crops it evenly on both sides instead of sliding it off to the
+   right and cutting the last three buildings off. */
+#skyline-line{stroke-width:2.1}
 
 /* ── motion ───────────────────────────────────────────────────────────────── */
 @keyframes reveal{to{opacity:1;transform:translateY(0)}}
@@ -244,6 +267,13 @@ main{padding-top:var(--header-h)}
 .skyline{
   clip-path:inset(0 100% 0 0);
   animation:skyline-reveal 2500ms ease-out 600ms forwards;
+}
+
+/* Very short screens (a 568px phone, a netbook) spend so much of the viewport on
+   the three-line headline that there is nothing left underneath. The empty band
+   above the headline is the slack worth taking. */
+@media (max-height:640px){
+  .hero-copy{top:8%}
 }
 
 /* Scroll entry. The hidden state is scoped to .js-reveal, which the script adds
@@ -345,8 +375,8 @@ main{padding-top:var(--header-h)}
     <div class="skyline">
       <div class="skyline-clip">
         <!-- purely decorative: announcing it adds nothing for screen readers -->
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 630 360" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-          <path id="skyline-line" d="M 0,176 L 234,176 L 234.9,176.1 L 234.4,139.3 L 260.6,139 L 260.3,176.3 L 261,175.6 L 260.4,105.5 L 279.8,105.8 L 279.5,176.1 L 282.2,175.9 L 282.4,141.3 L 287.7,140.6 L 287.7,176.4 L 288.4,176.2 L 288.7,96.5 L 301.4,96.5 L 300.8,175.9 L 302.4,175.8 L 301.9,113.9 L 315.5,114.2 L 314.4,176.4 L 315.9,176.2 L 315.3,158.9 L 322.3,159 L 322.5,176.2 L 324.1,175.5 L 323.9,145.7 L 330,145.5 L 341.4,146.3 L 342,67 L 342.9,145.7 L 331.4,84.1 L 339.3,84.2 L 338.7,176 L 344.6,175.5 L 343.6,82.4 L 350.6,83.2 L 350.7,175.7 L 352,176.3 L 352.2,151.3 L 364.9,151.1 L 364.5,175.6 L 365.6,176.1 L 365.8,110 L 388.7,110.3 L 389.2,175.6 L 391.3,175.7 L 392.3,148.2 L 405.4,148 L 405.5,175.5 L 406.4,176.4 L 407.4,161.4 L 425.4,161.3 L 426.2,176.2 L 427,176 L 630,176" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 630 166" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <path id="skyline-line" d="M 0,158 L 96,158 L 170,158 L 196.6,158 L 203.6,157.3 L 203.6,106.3 L 223.1,105.6 L 242.7,104.9 L 241.3,127.3 L 240.6,149.6 L 239.2,121.7 L 239.2,60.2 L 251.1,59.5 L 265,60.2 L 265.7,84 L 265.7,107 L 255.2,107 L 267.8,107.7 L 277.6,107.7 L 275.5,127.3 L 275.5,146.8 L 276.9,93.7 L 277.6,45.5 L 286,45.5 L 294.4,46.2 L 295.8,79.8 L 295.8,117.5 L 294.4,93.7 L 294.4,70 L 304.1,70 L 312.5,70 L 313.2,100.7 L 313.2,130.1 L 284.6,132.2 L 304.1,132.9 L 323.7,132.9 L 326.5,142.6 L 326.5,152.4 L 325.8,132.9 L 325.8,115.4 L 333.5,115.4 L 340.5,116.1 L 340.5,134.3 L 337.7,134.3 L 337,79.8 L 337,28.8 L 349.5,27.8 L 350.2,15.5 L 350.9,4.3 L 353,28.1 L 354.4,51.8 L 356.5,68.6 L 357.2,82.6 L 358.2,96.5 L 358.6,110.5 L 360,123.1 L 358.6,132.9 L 351.6,132.9 L 344.6,132.9 L 343.3,121.7 L 344.6,107.7 L 346,93.7 L 347.4,79.8 L 348.4,65.8 L 348.8,51.8 L 349.3,28.1 L 355.8,27.3 L 362.8,26.7 L 362.8,74.2 L 363.5,123.1 L 374,122.7 L 385.2,122.4 L 387.3,132.9 L 388,144 L 386.6,107.7 L 386.6,64.4 L 401.9,64.4 L 417.3,64.4 L 418,104.9 L 418.7,144 L 421.5,143.3 L 421.5,130.1 L 421.5,117.5 L 429.9,117.5 L 439.6,117.5 L 439.6,127.3 L 440.3,134.3 L 431.3,135.6 L 449.4,136.3 L 467.6,137 L 468.3,148.2 L 468.3,158 L 499.7,157.6 L 527.6,158 L 533.2,158 L 630,158" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
         </svg>
       </div>
     </div>
