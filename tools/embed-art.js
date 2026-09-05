@@ -63,6 +63,26 @@ function prepare(raw) {
     return `<style>${scoped}</style>`;
   });
 
+  // CLEAN is a guide, not a line anyone should see. Moving the group bodily into a
+  // <mask> is what makes that true by construction rather than by a colour or an
+  // opacity that could be got wrong: mask content is never painted. Its white
+  // stroke becomes the reveal, and animating the dash offset on it wipes TEXTURE
+  // in along the drawn path instead of fading the whole layer up.
+  //
+  // The group is moved, never edited - the polyline's points are untouched, which
+  // --check proves byte-for-byte against the file on disk.
+  //
+  // MASK_W is the brush's own spread: measured against this artwork the texture
+  // sits a median of 10 and 95% within 40 units of the guide, so 110 (55 either
+  // side) covers it with room while keeping the leading edge tight.
+  const MASK_W = 110;
+  const clean = s.match(/<g id="CLEAN">[\s\S]*?<\/g>/);
+  if (!clean) throw new Error('CLEAN group not found');
+  s = s.replace(clean[0], '');
+  s = s.replace(/(<g id="TEXTURE")/,
+    `<defs>\n<mask id="art-reveal" maskUnits="userSpaceOnUse" x="-160" y="-160" ` +
+    `width="2240" height="1400" stroke-width="${MASK_W}">\n${clean[0]}\n</mask>\n</defs>\n$1 mask="url(#art-reveal)"`);
+
   const verify = {
     viewBox: (tag.match(/viewBox="([^"]+)"/) || [])[1],
     polylines: (s.match(/<polyline/g) || []).length,
@@ -71,6 +91,9 @@ function prepare(raw) {
     hasClean: /id="CLEAN"/.test(s),
     hasTexture: /id="TEXTURE"/.test(s),
     transformsAdded: (s.match(/transform=/g) || []).length,
+    cleanInMask: /<mask id="art-reveal"[\s\S]*?<g id="CLEAN">/.test(s),
+    textureMasked: /<g id="TEXTURE" mask="url\(#art-reveal\)"/.test(s),
+    cleanOutsideMask: /<\/mask>[\s\S]*<g id="CLEAN">/.test(s),
   };
   return { svg: s, verify };
 }
@@ -93,6 +116,9 @@ if (process.argv[2] === '--check') {
   report(verify.polylines === 1, `CLEAN is one continuous polyline (${verify.polylines})`);
   report(verify.paths === 40 && verify.polygons === 3, `TEXTURE intact: ${verify.paths} paths, ${verify.polygons} polygons`);
   report(verify.transformsAdded === 0, 'no transform added anywhere');
+  report(verify.cleanInMask, 'CLEAN lives inside the mask, so it is never painted');
+  report(!verify.cleanOutsideMask, 'no second copy of CLEAN outside the mask');
+  report(verify.textureMasked, 'TEXTURE is masked by the CLEAN reveal');
   report(!/<style>[^<]*[^ ]\.st/.test(svg.replace(/#hero-art-svg \.st/g, '')), 'exported class rules are scoped to the svg');
   process.exit(bad ? 1 : 0);
 }

@@ -223,31 +223,46 @@ main{padding-top:var(--header-h)}
 }
 .hero-cta{margin-top:40px;display:flex;align-items:center;justify-content:center}
 
-/* The artwork is the master file exported from Illustrator, dropped in whole. The
-   box scales; nothing inside it is repositioned. meet, not slice: the drawing's
-   own internal margins are part of the design and slice scales it up as the
-   window narrows, which eats them. xMidYMax keeps it on the floor of the hero. */
-.hero-art{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+/* The artwork is the master file exported from Illustrator, dropped in whole and
+   rendered at the size it was drawn: a 1920x1080 box, so on a 1920 desktop the
+   composition and its internal margins are 1:1 with the artboard. Letting it fit
+   the hero instead (preserveAspectRatio meet on a full-bleed box) was shrinking it
+   to 94% and letterboxing it, which is why it read small.
+   Narrower than 1920 it scales down whole, about its bottom centre, so the ratio
+   never distorts and nothing inside moves. Wider, the scale caps at 1 rather than
+   blowing the drawing up past its design size. The hero's own overflow crops the
+   top, which is the empty half of the artboard. */
+.hero-art{
+  /* The box is the artboard: at a 1920 page the drawing renders 1:1 with what
+     Illustrator shows, so the composition and its internal margins carry over
+     untouched. Narrower, the whole box shrinks and the 16:9 aspect-ratio keeps
+     the drawing undistorted; wider, min() caps it at 1920 rather than blowing it
+     past its design size. A scale() transform was the obvious route but
+     calc(100vw / 1920) is a length, not a number, so the transform was invalid
+     and silently dropped - sizing the box does the same job in valid CSS.
+     100% is the page's own width, which is the viewport minus the scrollbar and
+     the right reference: a 1920 monitor is not a 1920 viewport. */
+  position:absolute;left:0;right:0;bottom:0;margin:0 auto;
+  width:min(100%, 1920px);aspect-ratio:1920 / 1080;max-width:none;
+  pointer-events:none;z-index:0;
+  /* third rung of the hero's ladder: headline 100, subhead 70, this 45. Applied
+     to the whole graphic so the artwork's internal values keep their relationship
+     to one another - the exported file mixes white and #4D4D4D deliberately. */
+  opacity:.45;
+}
 .hero-art-clip{position:absolute;inset:0}
 #hero-art-svg{display:block;width:100%;height:100%}
-/* Third rung of the hero's ladder: headline 100, subhead 70, this 45. Applied to
-   the whole graphic so the artwork's internal values keep their relationship to
-   one another - the exported file mixes white and #4D4D4D deliberately. */
-.hero-art{opacity:.45}
 
 /* ── motion ───────────────────────────────────────────────────────────────── */
 @keyframes reveal{to{opacity:1;transform:translateY(0)}}
-/* Phase 1: CLEAN draws itself. It is one continuous polyline, which is what makes
-   this possible; its length is read at runtime with getTotalLength() rather than
-   written in here, so a re-export with different geometry keeps animating. With
-   JS off --clean-len never lands, stroke-dasharray falls back to none, and the
-   line is simply present.
-   Phase 2: TEXTURE fades in over 900ms. The delay is 1275ms, not a round fraction
-   of the duration: the draw is eased, so at three quarters of its running time
-   the line is already 96% drawn. 1275ms is where it is measurably 75% drawn, and
-   the brush then arrives while the line is still travelling. */
+/* The reveal. CLEAN never appears on screen - it sits inside a <mask>, where the
+   renderer uses it but never paints it. Animating its dash offset wipes the mask
+   open along the drawn path, so what the eye sees is TEXTURE's own brushed line
+   arriving stroke by stroke, not a clean line followed by a texture fading up.
+   The polyline's length is read at runtime with getTotalLength() rather than
+   written in here, so a re-export with different geometry keeps working; if that
+   never runs, stroke-dasharray falls back to none and the mask is simply open. */
 @keyframes art-draw{to{stroke-dashoffset:0}}
-@keyframes art-texture{to{opacity:1}}
 
 .reveal{
   opacity:0;transform:translateY(24px);
@@ -260,11 +275,7 @@ main{padding-top:var(--header-h)}
 #hero-art-svg #CLEAN polyline{
   stroke-dasharray:var(--clean-len);
   stroke-dashoffset:var(--clean-len);
-  animation:art-draw 2200ms cubic-bezier(.33,0,.15,1) 300ms forwards;
-}
-#hero-art-svg #TEXTURE{
-  opacity:0;
-  animation:art-texture 900ms ease-out 1275ms forwards;
+  animation:art-draw 2400ms cubic-bezier(.32,0,.28,1) 350ms forwards;
 }
 
 /* Very short screens (a 568px phone, a netbook) spend so much of the viewport on
@@ -303,7 +314,6 @@ main{padding-top:var(--header-h)}
 @media (prefers-reduced-motion:reduce){
   .reveal{opacity:1;transform:none;animation:none}
   #hero-art-svg #CLEAN polyline{stroke-dasharray:none;stroke-dashoffset:0;animation:none}
-  #hero-art-svg #TEXTURE{opacity:1;animation:none}
   .js-reveal .reveal-on-scroll{opacity:1;transform:none}
   .nav-center a::after{transition:none}
 }
@@ -398,6 +408,9 @@ main{padding-top:var(--header-h)}
         	#hero-art-svg .st2{fill:#4D4D4D;}
         	#hero-art-svg .st3{fill:none;stroke:#4D4D4D;stroke-width:0;stroke-linecap:round;stroke-linejoin:round;}
         </style>
+        
+        <defs>
+        <mask id="art-reveal" maskUnits="userSpaceOnUse" x="-160" y="-160" width="2240" height="1400" stroke-width="110">
         <g id="CLEAN">
         	<polyline class="st0" points="6.67,897.96 232.23,897.96 238.34,414.96 533.34,391.96 533.34,645.74 397.84,647.46 399.84,451.46 
         		553.84,439.46 553.84,900.85 261.11,900.85 262.84,662.46 366.84,666.46 367.84,851.46 276.84,849.46 278.84,689.46 574.84,694.46 
@@ -409,7 +422,9 @@ main{padding-top:var(--header-h)}
         		1553.84,488.46 1335.84,563.46 1335.84,656.46 1190.84,587.46 1188.84,570.46 1592.84,400.46 1592.84,853.59 1631.84,851.46 
         		1631.84,423.37 1736.84,505.46 1736.84,857.15 1657.84,853.46 1657.84,530.46 1715.78,559.44 1715.84,834.46 1910.84,833.46 	"/>
         </g>
-        <g id="TEXTURE">
+        </mask>
+        </defs>
+        <g id="TEXTURE" mask="url(#art-reveal)">
         	<g>
         		<g>
         			<g>
