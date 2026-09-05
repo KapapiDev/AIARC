@@ -202,10 +202,9 @@ main{padding-top:var(--header-h)}
 
 .hero h1{
   font-family:var(--font-serif);font-weight:400;
-  /* 58 -> 50, 48 -> 41.5, 38 -> 33: 13-14% off at every breakpoint, so the
-     headline stops dominating the drawing. Leading 1.15 -> 1.08 binds the two
-     lines into one block. Family and weight unchanged. */
-  font-size:33px;line-height:1.08;letter-spacing:-.025em;
+  /* 50 -> 45, 41.5 -> 37.4, 33 -> 29.7: another 10% off every breakpoint.
+     Leading stays 1.08, family and weight unchanged. */
+  font-size:29.7px;line-height:1.08;letter-spacing:-.025em;
   /* top of the brightness ladder: headline 100, subhead 70, drawing 42 */
   color:rgb(255 255 255);
   /* Korean has no inter-syllable break opportunity worth taking — without this the
@@ -245,10 +244,11 @@ main{padding-top:var(--header-h)}
   position:absolute;left:0;right:0;bottom:0;margin:0 auto;
   width:min(100%, 1920px);aspect-ratio:1920 / 1080;max-width:none;
   pointer-events:none;z-index:0;
-  /* third rung of the hero's ladder: headline 100, subhead 70, this 45. Applied
+  /* third rung of the hero's ladder: headline 100, subhead 70, this 55. Applied
      to the whole graphic so the artwork's internal values keep their relationship
-     to one another - the exported file mixes white and #4D4D4D deliberately. */
-  opacity:.45;
+     to one another, and so the knockouts keep compositing to exactly the page
+     colour whatever this value is. */
+  opacity:.55;
 }
 .hero-art-clip{position:absolute;inset:0}
 #hero-art-svg{display:block;width:100%;height:100%}
@@ -350,8 +350,8 @@ main{padding-top:var(--header-h)}
 }
 
 /* ── type scale: Altitude's text-5xl / sm:text-6xl / lg:text-7xl ──────────── */
-@media (min-width:640px){.hero h1{font-size:41.5px}}
-@media (min-width:1024px){.hero h1{font-size:50px}}
+@media (min-width:640px){.hero h1{font-size:37.4px}}
+@media (min-width:1024px){.hero h1{font-size:45px}}
 </style>
 </head>
 <body>
