@@ -97,6 +97,15 @@ function prepare(raw) {
     hasTexture: /id="TEXTURE"/.test(s),
     transformsAdded: (s.match(/transform=/g) || []).length,
     rootIds: (open[0].match(/\sid="/g) || []).length,
+    // TEXTURE shapes with no class are the knockouts: the artist fills them with
+    // the page colour so they hide the lines behind them. SVG's default fill is
+    // black, so index.html paints them the background token instead - see the
+    // rule next to #hero-art-svg. Counted here so a re-export that changes them
+    // shows up rather than silently turning into dark patches.
+    knockouts: (() => {
+      const tex = s.slice(s.indexOf('<g id="TEXTURE"'));
+      return (tex.match(/<(?:path|polygon)(?![^>]*\sclass=)/g) || []).length;
+    })(),
     ourRootId: (tag.match(/\sid="[^"]*"/g) || []).length === 1 && /id="hero-art-svg"/.test(tag),
     cleanInMask: /<mask id="art-reveal"[\s\S]*?<g id="CLEAN">/.test(s),
     textureMasked: /<g id="TEXTURE" mask="url\(#art-reveal\)"/.test(s),
@@ -128,6 +137,8 @@ if (process.argv[2] === '--check') {
   report(verify.cleanInMask, 'CLEAN lives inside the mask, so it is never painted');
   report(!verify.cleanOutsideMask, 'no second copy of CLEAN outside the mask');
   report(verify.textureMasked, 'TEXTURE is masked by the CLEAN reveal');
+  report(verify.knockouts > 0,
+    `${verify.knockouts} unclassed shapes, painted the page colour as knockouts`);
   report(!/<style>[^<]*[^ ]\.st/.test(svg.replace(/#hero-art-svg \.st/g, '')), 'exported class rules are scoped to the svg');
   process.exit(bad ? 1 : 0);
 }
