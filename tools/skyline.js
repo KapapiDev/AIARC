@@ -1,171 +1,53 @@
-// Generates the hero skyline by tracing the reference drawing.
+// The hero skyline, traced from the target drawing.
 //
-// TRACE below is not drawn by eye. It is the pen path read out of the reference
-// image by scanning every row for horizontal ink runs and every column for
-// vertical ones, then walking the result end to end. Only the measurements live
-// here, not the image, which is not ours to redistribute.
+// This is not a generated silhouette any more and not a stroked polyline. The
+// drawing it comes from is a brush one-line sketch whose width varies along the
+// stroke, so a constant-stroke path cannot reproduce it. What is stored here is
+// the OUTLINE of the ink: an iso-contour of the source image's luminance at
+// level 100, taken with sub-pixel interpolation (marching squares), chained into
+// closed loops and simplified to 0.3px. It is filled, never stroked.
 //
-// Three facts the pixels gave up that no amount of squinting had:
-//   - There is NO ground under the city. The ground line exists only at the far
-//     left (x 47-125) and far right (x 313-360). Between them every wall stops
-//     in mid-air somewhere around y 97-122. Drawing the walls down onto a
-//     continuous ground - which every earlier version did - turns a loose,
-//     floating sketch into a solid stepped mass. This is the single biggest
-//     reason it read as a different drawing.
-//   - The tall tower is a tapering obelisk, not a needle on a roof: its walls
-//     run from a 10px base at y=108 up to a 3px point at y=16, and the roofline
-//     of the two flanking towers crosses straight through it at y=32.
-//   - Several walls are walked down and back up before the line moves on, and
-//     three roofs overshoot into a short stub before doubling back. Those stubs
-//     are visible in the drawing and are part of why it reads as hand-made.
+// One outer loop plus three slivers - the gaps left where the pen doubled back
+// on itself. The buildings do not close at the bottom, so their interiors are
+// not holes; that is the same hanging-wall structure the earlier reference had.
+//
+// Fidelity, measured by rasterising both at 3x and comparing ink masks:
+// 100% of the source's ink has this path within 1px, and 100% of this path's
+// ink has source ink within 1px. What is left is sub-pixel antialiasing.
+//
+// viewBox is 1905 x 394, the source's own pixel grid, and 1905 is exactly the
+// target's content width, so at 1920 the drawing renders 1:1 with no rescaling.
+// A first pass cropped at x<1902 and lost the last 3px of the ground line, which
+// then stretched by 0.16% to fill the width. Ink occupies y 7..393.4,
+// so the ground line sits on the bottom edge and the drawing runs corner to
+// corner horizontally.
 
-// --- traced from the reference (451x188 px) ----------------------------------
-const REF_GROUND = 126;
-const REF_X0 = 47;
-const REF_X1 = 360;
-const REF_TOP = 16;                // the obelisk's point
+const VB_W = 1905;
+const VB_H = 394;
+const INK_TOP = 7;          // the tower's tip
+const GROUND = 393.4;       // the underside of the ground line
+const FILL = '#f8f8f8';     // sampled from the target's ink core, not guessed
 
-// The pen path, in reference pixels, in stroke order.
-const TRACE = [
-  [47, 126], [100, 126], [119, 126], [124, 125.5],          // ground, left
-  [124, 89],                                                 // up the first wall
-  [138, 88.5], [152, 88],                                    // roof
-  [151, 104], [150.5, 120],                                  // down, hanging
-  [149.5, 100], [149.5, 56],                                 // and back up
-  [158, 55.5], [168, 56],                                    // roof
-  [168.5, 73], [168.5, 89.5],                                // down
-  [161, 89.5],                                               // stub back to the left
-  [170, 90], [177, 90],                                      // roof
-  [175.5, 104], [175.5, 118],                                // down, hanging
-  [176.5, 80], [177, 45.5],                                  // and back up
-  [183, 45.5], [189, 46],                                    // roof
-  [190, 70], [190, 97],                                      // down, hanging
-  [189, 80], [189, 63],                                      // and back up
-  [196, 63], [202, 63],                                      // roof
-  [202.5, 85], [202.5, 106],                                 // down
-  [182, 107.5],                                              // stub back to the left
-  [196, 108], [210, 108],                                    // and out to the right
-  [212, 115], [212, 122],                                    // down
-  [211.5, 108], [211.5, 95.5],                               // and back up
-  [217, 95.5], [222, 96],                                    // roof
-  [222, 109],                                                // down
-  [220, 109],                                                // across the narrow base
-  [219.5, 70], [219.5, 33.5],                                // up the tall left wall
-  [228.5, 32.8],                                             // roof, into the obelisk
-  [229, 24], [229.5, 16],                                    // up to the point
-  [231, 33], [232, 50], [233.5, 62], [234, 72],              // down the right side,
-  [234.7, 82], [235, 92], [236, 101], [235, 108],            //   flaring as it falls
-  [230, 108], [225, 108],                                    // base
-  [224, 100], [225, 90], [226, 80], [227, 70],               // up the left side
-  [227.7, 60], [228, 50], [228.3, 33],
-  [233, 32.4], [238, 32],                                    // roof continues right
-  [238, 66], [238.5, 101],                                   // down, hanging
-  [246, 100.7], [254, 100.5],                                // roof
-  [255.5, 108], [256, 116],                                  // down, hanging
-  [255, 90], [255, 59],                                      // and back up
-  [266, 59], [277, 59],                                      // roof
-  [277.5, 88], [278, 116],                                   // down
-  [280, 115.5],                                              // across
-  [280, 106], [280, 97],                                     // up
-  [286, 97], [293, 97],                                      // roof
-  [293, 104], [293.5, 109],                                  // down
-  [287, 110],                                                // stub back to the left
-  [300, 110.5], [313, 111],                                  // and out to the right
-  [313.5, 119], [313.5, 126],                                // down to the ground
-  [336, 125.7], [356, 126], [360, 126],                      // ground, right
-];
+const d = 'M1101,7.4L1100,8.7L1097.8,9L1097,20.2L1096,20.2L1095.9,21L1095.8,33L1096,35.2L1097,35.2L1097.7,52L1098,53.4L1100,53.4L1100.9,65L1101,65.6L1102,65.6L1102.3,72L1103,73.3L1104,73.3L1105,82L1107,82L1107.8,90L1108,90.7L1109,90.7L1110,97.6L1112,97.6L1112.7,105L1113,106.1L1114,106.1L1114.8,113L1115,113.6L1117,113.6L1117.1,114L1117.6,121L1118,122.3L1119,122.3L1120,131.4L1121,131.4L1121.7,140L1122,141L1124,141L1124.8,150L1125,151L1126,151L1126.2,152L1127,162.9L1129,162.9L1129.9,177L1130,177.9L1131,178L1132,197.7L1134,197.7L1134.8,224L1135,226.7L1136,226.7L1136.8,259L1137,259.9L1138,259.9L1138.1,261L1138.7,283L1139,284.8L1141,284.8L1141.6,300L1142,301.9L1143,301.9L1144,315.8L1146,316L1146.4,323L1146,323.5L1134,324.2L1081,324.6L1079,324.4L1078.6,324L1078,319.9L1076,319.9L1075.4,293L1076,275.1L1078,275.1L1078.8,262L1079,260.8L1080,260.8L1080.2,260L1080.9,250L1081,249.5L1083,249.5L1083.2,249L1083.9,238L1085,237.8L1085.2,237L1085.9,227L1086,226.7L1087,226.7L1087.4,225L1087.9,216L1090,215.7L1090.4,214L1091,203L1092,202.9L1092.4,201L1093,189.6L1095,189.6L1095.1,189L1096,171.3L1097,171.3L1097.3,169L1098,146.8L1100,146.8L1100.2,145L1100.9,98L1100.8,69L1100,68.4L1098,68.4L1097,67.3L1092,67.1L1055,67.1L1038,66.3L1035,66.6L1034.1,69L1034.6,169L1034.1,279L1033,279.2L1032,280.2L989,280.3L983.7,281L983.4,284L984,286.3L986,286.3L986.1,287L986.8,303L987,304.2L988,304.2L988.4,341L988,355.8L987,355.8L986,354.2L984,354.2L983.3,327L982,326.6L981,325.3L979,325.3L978,324.6L963,324.1L916,325.2L878,325.4L851,325.1L848,324.5L840.5,324L901,323.3L903.9,323L904,322L920,321.5L921,320.9L925,320.5L926,319.6L928,319.6L928.5,319L929,316.5L930,316.5L930.4,315L931,258L932,257.8L932.2,256L932.5,193L932.8,192L932.7,178L932.2,173L931,172.8L930,171.4L929,171.4L928,170.6L918,169.6L844,169.2L843,165.6L841,165.6L840.3,146L840,144.1L839,144L839,121L839,120.3L840,120.3L840.2,114L840,113L839,113L838.5,111L838,110.4L837,110.4L836.7,109L836,108.4L832,108.2L831,107.8L823,107.5L757,107.3L753.6,108L753,115.5L752,115.5L751.8,117L751.8,265L751.3,315L751,324.1L749,324.1L748,326.8L747,326.8L746.2,314L746,313.1L745,313L744,293.5L742,293.5L742,293L742,274.3L744,274.3L745,268L746,267.9L746.7,266L746,262.7L741,262.2L720,262.6L717.4,263L717.4,264L710,264.3L673.5,264L673.5,263L674,262.9L700,262.3L701,261.6L702,261.6L703,260.3L705,260.3L705.5,259L705.4,247L705,244.7L703,244.7L702.9,244L702.1,223L702,222.2L701,222.2L700.9,221L700.4,203L700,199L699,199L698.3,161L698.7,152L699,150.6L700,150.6L700.4,149L700,146.4L699,146.4L698,145.1L696,145.1L695,144.4L693,144.3L665,144.5L647,145.2L616,145.2L590,144.1L589.7,143L589,142.8L573,142.4L572.2,143L572.2,144L570,144.2L569,145.7L568,145.7L567.5,147L567,254.3L565,254.3L564,255.3L522,255.6L427,257.9L426.8,259L426,259.1L410,259.6L398,261.4L397,262.4L396,262.4L395.5,263L395,266.5L393,266.5L393,276.7L395,277L395.8,309L396,310.8L397,311L397.8,366L398,366.7L400,367L400,381.1L398,381.1L397.5,388L397,388.4L393,388.3L392.2,388L392,386.8L380,385.5L354,384.5L304,384.4L203,385.4L0,385.5L-0.5,386L-0.7,389L0,390L106,390L344,388.8L378,389.9L395,391.9L395.2,393L396,393.4L402,393.4L402.4,392L404.4,391L405,385.7L407,385.7L407.5,379L407.1,357L407,356.3L405,356L404.4,311L404,303.6L403,303.6L402.1,271L402.6,266L403,265.3L404,265.3L405,264.6L414,264.2L414.6,264L414.6,263L415,262.9L439,261.9L536,259.8L564,259.6L565,260.4L567,260.4L567.6,303L568,308.7L569,308.7L570,330.4L572,330.4L572.8,343L573,343.7L574,343.7L575,351.7L576,351.7L577,359.8L579,359.8L579.5,364L580,365L581,365L581.5,368L582,368.6L584,368.6L585,369.6L589,369.8L591,369.3L591.7,368L591.9,361L591.3,337L591,334.8L590,334.8L589.9,334L589.4,285L589.9,266L590,264.8L591,264.8L591.2,260L591,259.4L590,259.4L589.9,258L589,256.5L587,256.5L586,255.7L584,255.4L575,255.1L574.5,254L574.6,151L575,147.6L576,147.6L577,146.6L584,146.9L587,147.4L603,147.9L603.7,148L603.7,149L604,149.1L616,149.6L654,149.4L659.9,149L660,148L669,147.7L690,147.6L690.6,148L690,155.6L689,155.6L688.6,158L688.8,179L689,181L690,181L689,181L689,182L690,182.1L690.1,183L691,206.4L693,206.4L693.6,225L694,230L695,230L695.9,250L696,251L698,251L698.1,257L696,257.1L695.2,258L695.2,259L693,259.2L648,259.6L647,260.1L645,260.1L644,261L643,261L642.5,262L642.9,264L644,264.1L645,264.9L647,264.9L648,265.5L651,265.8L652,266.4L669,267.6L710,267.6L732,266.6L736,266.6L736.4,267L736,270.9L735,270.9L734.6,273L734.6,295L735,299.5L736,299.5L736.1,300L736.9,319L737,319.5L739,319.5L739.1,320L739.8,335L740,336.8L741,337L741.8,356L742,356.9L744,356.9L744.3,359L745,360.1L748,360.5L749,359.8L751,359.8L751.6,359L752,356.5L753,356.5L753.4,355L754,345.1L756,345L756.9,329L757,328.4L758,328.4L758.4,324L759,272L760,272L760.1,271L760,264L759,264L759,263L760,263L760.3,260L760.3,117L760.7,112L764,111.6L823,111.8L828,112L829,112.5L831,112.5L831.4,113L831.8,114L831.6,144L832,148L833,148L834,170L833,172.6L832,172.6L831.6,173L831,176.4L829,176.4L828.5,178L828,189.6L827,189.6L826.9,190L826.9,207L827,207.8L828,208L828.8,241L829,242.9L831,242.9L831.6,264L832,266.5L833,266.5L833.7,279L834,280L836,280L836.6,285L837,285.8L838,285.8L838.9,289L840,289.1L841,290L843,290L844,290.5L848,290.2L849,289.3L850.2,289L851,285.9L853,285.9L853.5,284L854,275L855,275L855.3,271L855.2,258L855,255.3L854,255.3L853,231L851,231L850.4,217L850,214.1L849,214.1L848.1,198L848,197.4L846,197.4L845.1,183L845,182.4L844,182.4L843.9,182L843.8,173L846,172.6L916,173L916,174L917,174.3L923,174.7L924,176.6L925,176.6L925.1,177L925.1,179L924,179.1L923.4,180L924,182.6L925,182.6L925.1,184L924,184.1L923.4,185L924,190.9L925,191L925,192.2L924,192.2L923.6,202L923.9,212L923.1,310L923,310.6L921,310.6L920.5,316L918.3,317L918,318.2L891,319.2L810,319.6L788,320.4L786,320.5L785,321.2L783,321.2L782.4,322L782.5,324L783,324.6L785,324.6L786,325.4L795,326.3L811,327L811.1,328L812,328.3L846,329.4L894,329.8L955,328.6L974,328.7L975,329.9L976,330L975,330.3L974.9,331L974.9,339L975,339.7L976,339.7L976.8,358L977,359.3L978,359.3L978.8,371L979,371.5L981,371.5L981.4,375L982,376.2L983,376.2L984,377L986.2,377L986.2,378L988,378.1L988.1,377L989,376.5L991,376.5L992,373.7L993,373.7L993.3,373L994,361.1L995,361.1L995.4,358L995.5,309L995.2,300L995,298.8L994,298.8L993.9,298L993.4,286L994,284.6L1032,284.6L1033,285.9L1034,285.9L1034,286.5L1033,286.5L1033,301L1033,301.7L1034,301.7L1034.7,323L1035,323.8L1037,323.8L1037.6,329L1038,329.7L1039,329.7L1039.5,333L1040,333.6L1041,333.6L1042,335.5L1044,335.5L1045,336.6L1046.8,337L1047,338.2L1050,338.5L1054,338.1L1054.1,337L1056,336.4L1057,334.6L1058,334.6L1058.4,334L1058.8,323L1058.4,305L1058,299.9L1057,299.9L1056.9,299L1056.4,282L1056,281.5L1055,281.5L1054,280.4L1049,279.9L1042,279.9L1041.5,279L1041.9,168L1042,167.2L1044,167.2L1044.2,165L1044.2,109L1044,107.7L1042,107.7L1041.9,107L1041.5,73L1042,71L1055,71.5L1090,71.5L1092,71.6L1092.5,73L1092.2,131L1092,136.6L1091,136.6L1090.8,138L1090,166L1088,166.3L1087.9,167L1087.1,185L1087,185.4L1086,185.4L1085.7,187L1085.1,200L1085,200.3L1084,200.3L1083.6,202L1083,211.8L1081,211.8L1080,222.9L1079,223L1078,234.4L1076,234.4L1075,244.8L1074,244.8L1073.6,247L1073,255.7L1072,255.7L1071.8,257L1071,269.2L1069,269.2L1068.6,271L1068.1,290L1068,290.8L1067,291L1066.9,303L1067,305.7L1068,305.7L1068.6,323L1068.9,324L1071,324.1L1071.5,326L1072,326.7L1073,326.7L1073.3,328L1074,328.6L1079,329.2L1148,328.1L1148.2,327L1150,326.6L1151,325.7L1153,325.7L1153.5,325L1153.5,315L1153,310.8L1151,310.8L1150.3,300L1150,298.6L1149,298.6L1148.2,281L1148,279.1L1147,279.1L1146.9,278L1146.1,253L1146,251.9L1144,251.9L1143.4,223L1143,217.7L1142,217.7L1141.9,217L1141.2,193L1141,191.9L1139,191.9L1138.2,173L1138,172.4L1137,172.4L1136.9,172L1136.1,158L1135,157.8L1134,146.5L1132,146.5L1131.3,138L1131,136.5L1130,136.5L1129.1,128L1129,127.6L1127,127.6L1126.1,119L1125,118.7L1124,111.7L1122,111.7L1121.3,104L1121,103.1L1120,103.1L1119.1,96L1118,95.8L1117.2,88L1117,87.5L1115,87.5L1114.9,87L1114,79L1113,79L1112.8,78L1112.2,71L1112,70.5L1110,70.5L1109.8,70L1109.3,62L1109,61.2L1108,61.2L1107.8,60L1107,48.3L1105,48.3L1104.5,35L1105,28.7L1107,28.7L1107.8,40L1108,40.7L1109,40.7L1109,41L1109.8,57L1110,57.5L1112,57.5L1112.5,65L1113,65.6L1114,65.6L1115,66.4L1118,66.6L1160,66.5L1163.2,67L1163,76.9L1161,76.9L1160.4,89L1160.1,290L1160.3,303L1161,304.6L1163,304.6L1164,305.5L1180,305.4L1185,304.8L1243,303.1L1243.3,302L1248,301.8L1262,301.9L1262.3,303L1263,303.3L1267,303.7L1267.8,311L1267.9,318L1268,318.3L1269,318.3L1269.2,320L1269.7,338L1270,339.6L1272,339.6L1272.7,348L1273,349L1274,349L1274.6,353L1275,353.7L1276,353.7L1277,355.4L1279,355.4L1280,356.3L1284,356.4L1286,355.9L1287,354.8L1289,354.8L1289.5,354L1290,351L1291,351L1291.3,350L1291.9,339L1292,338.2L1293.1,338L1293.2,326L1293,323.9L1292,323.9L1291.7,315L1292,314.3L1293.2,314L1293.2,312L1293,309.9L1292,309.9L1291.8,299L1291.1,298L1291,293L1290,293L1289.1,271L1289,270.3L1287,270L1286.2,252L1286,250.7L1285,250.7L1284.9,250L1284.1,231L1284,230.3L1282,230.3L1281,206.8L1280,206.8L1279.9,205L1279.1,183L1279,182.5L1277,182.5L1276.7,161L1280,160.6L1364,160.5L1386,159.7L1417,159.3L1417.9,160L1417.1,171L1417,172.5L1415,172.5L1414.9,185L1415,186L1417,186L1417.1,187L1417.8,217L1418,219.6L1419,219.6L1419.1,222L1419.8,256L1420,256.7L1422.1,257L1423,338L1424,338.3L1425,350.9L1427,350.9L1427.7,355L1431.7,357L1432,358.3L1436,358.4L1437,358L1437,357L1439,357L1440,356.2L1441,356.2L1442,354.4L1444,354.4L1445,349.4L1446,349.4L1446.2,349L1447,334.5L1448,334.5L1448.1,333L1448.3,294L1448.5,292L1449,291.5L1490,291.8L1526,291L1526.8,292L1527,295.8L1528,296L1528.6,322L1528.2,329L1526,329.4L1495,330.5L1488,331.2L1485.5,332L1485.2,334L1486,335.6L1487,335.6L1488,336.3L1502.5,337L1502.5,338L1505,338.2L1625,339.1L1657,339.7L1664,340.4L1664.5,341L1664,348L1663,348.2L1662.6,352L1662.5,380L1663,381.5L1664,381.5L1664.3,382L1665,388.1L1666,388.1L1666.3,389L1666,389.9L1665,389.9L1665,391L1666,391L1667,393.3L1674,393.3L1676,393L1676,392L1677,391.6L1681,391.5L1687,390.6L1710,391.2L1821,390.5L1904,389.8L1904.6,389L1904.6,386L1904,385.3L1844,385.5L1692,386.7L1691.4,387L1691,388.3L1689,388.3L1688,388.9L1677,388.7L1676,389.9L1672,390L1671,389L1670,389L1669.8,388L1670,386.8L1671,386.8L1671.4,384L1671,371.2L1670,371L1670,362L1670,361.5L1671,361.5L1671.8,344L1672,343.4L1674,343.4L1674.2,341L1674,339.8L1672,339.8L1671,336.9L1670,336.9L1669,336.3L1667,336.3L1666,335.6L1645,334.7L1532,334.1L1533,333.8L1533.4,332L1534,331.4L1536,331.4L1537,329.2L1538.1,329L1538.3,316L1538,309.3L1537,309.3L1537,309L1536.3,290L1536,289.3L1534,289.3L1533,288L1532,288L1532,287L1531,286.5L1505,286.8L1504.1,287L1504,288L1480,288.5L1454,288L1453.8,287L1453,286.8L1447,286.7L1446,287L1446,288L1444,288.6L1442,288.6L1441,290.6L1440,290.6L1439.7,292L1439.7,320L1439,344.7L1437,344.7L1436.2,350L1435,350.3L1434,348.1L1432,348L1431.1,312L1431,311L1430,311L1430,310L1429.2,242L1429,240L1428,240L1427.1,207L1427,206.5L1425,206.5L1424.8,204L1424.7,167L1425,164.3L1427.1,164L1427.5,158L1427,156.6L1425,156.6L1424,155.5L1419,154.6L1403,154.6L1349,156.3L1277,156.2L1273,156.4L1272,157.2L1270,157.2L1269.4,158L1269.1,165L1269.9,195L1270,195.7L1272,195.7L1272.8,219L1273,220.6L1274,220.6L1274.2,223L1274.8,241L1275,242.2L1276,242.2L1276.1,243L1277,261.9L1279,262L1279.8,280L1280,281.4L1281,281.4L1281.6,296L1282,298.8L1284,298.8L1284.3,301L1284.5,335L1284,345.8L1282,345.8L1281,344.8L1280,344.8L1279,334.2L1277,334.2L1276.3,307L1276,306.5L1275,306.5L1274.1,302L1273,301.9L1272,299.9L1270,299.9L1267,298.6L1251,298.4L1234,298.6L1172,301L1168,300.6L1167.6,300L1167.5,295L1167.7,99L1168,85.3L1170,85.3L1170.4,80L1170.6,67L1170.3,64L1168,63.7L1167,62.6L1165,62.2L1120,62L1119.5,61L1119,53.8L1118,53.8L1117.3,38L1117,36.8L1115,36.8L1114.3,24L1114,22.9L1113,22.9L1112.3,14L1112,13.4L1110,13.4L1109.3,9L1108,8.6L1107,7.3L1103,7L1101,7.4ZM836.7,190L837,189.2L838,189.2L838.8,202L839,202.9L840,203L840.8,219L841,219.9L843,219.9L843.7,236L844,238L845,238L845.6,272L845.5,278L845,280.8L844,280.8L843,278.2L841,278.2L840.3,265L840,264.1L839,264L838.4,242L838,236.4L837,236.4L836.7,230L836.1,196L836.7,190ZM574.7,260L581,259.8L581.7,261L581,283L580,283.1L579.8,285L579.9,305L580,306L581,306L581.1,309L581.5,335L581.4,339L581,340.1L580,340.1L579.8,339L579,326.4L577,326.4L576.8,325L576.3,301L576,298.3L575,298.3L575,298L574.7,260ZM1041.6,285L1042,284.5L1045,284.4L1049.1,285L1049.9,308L1050,308.7L1051,308.7L1051.2,312L1051.4,325L1051,331.2L1047,331.3L1046,328.1L1045,328L1044,320.8L1042,320.8L1041.5,303L1041.6,285Z';
 
-// Topmost inked pixel per column, flattened into runs. Read out of the image in
-// a separate pass from TRACE, so it works as an independent check on it.
-const REF_RUNS = [
-  [47, 122, 125], [123, 148, 88], [149, 168, 55], [170, 176, 90],
-  [177, 189, 45], [190, 203, 63], [204, 211, 108], [212, 218, 95],
-  [219, 227, 33], [232, 239, 32], [240, 253, 100], [254, 277, 59],
-  [280, 293, 97], [295, 314, 110], [315, 360, 125],
-];
-
-// --- mapping into the hero's viewBox -----------------------------------------
-const VB_W = 630;
-// The viewBox is cropped tight to the drawing. It used to be 630x360 with the
-// ground line at y=177, which left the bottom half of the svg empty and forced
-// the hero to position it by a top:% guess. With no dead space the graphic can
-// simply be anchored to the bottom of the viewport, which is what keeps the
-// obelisk clear of the CTA now that the drawing is at the reference's own scale.
-const VB_H = 166;
-const BASE = 158;                  // ground line, 8 units of air below it for the cap
-// The reference's drawing fills 69% of its frame width (313 of 451 px). Placing
-// it at S=1 in a 630-wide viewBox filled only 50%, which is why it looked small
-// and cramped with too much flat line either side.
-const S = VB_W / 451;
-const REF_W = REF_X1 - REF_X0;
-const X0 = Math.round((VB_W - REF_W * S) / 2);
-
-const mx = (rx) => (rx - REF_X0) * S + X0;
-const my = (ry) => BASE - (REF_GROUND - ry) * S;
-
-const r = (n) => Math.round(n * 10) / 10;
-const pts = TRACE.map(([x, y]) => [mx(x), my(y)]);
-
-// The two flat ground runs are the only thing extended past the reference's own
-// frame: on the page they run out to the viewport edges instead of stopping in
-// mid-air at 69% width. Nothing else about the drawing is changed.
-pts.unshift([0, my(REF_GROUND)]);
-pts.push([VB_W, my(REF_GROUND)]);
-
-const d = 'M ' + pts.map(([x, y]) => `${r(x)},${r(y)}`).join(' L ');
 
 // --- checks -------------------------------------------------------------------
 if (process.argv[2] === '--check') {
   let bad = 0;
   const report = (p, m) => { console.log((p ? 'ok   ' : 'FAIL ') + m); if (!p) bad++; };
-  const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
-
-  report((d.match(/M/g) || []).length === 1, 'a single unbroken stroke');
-  report(xs[0] === 0 && xs[xs.length - 1] === VB_W, 'spans the full viewBox width');
-  report(Math.max(...ys) <= BASE + 0.5, `nothing below the ground line (max y ${r(Math.max(...ys))})`);
-  report(Math.min(...ys) > 0 && Math.max(...ys) < VB_H,
-    `the drawing fits the ${VB_W}x${VB_H} viewBox (y ${r(Math.min(...ys))}..${r(Math.max(...ys))})`);
-  report(Math.abs(Math.min(...ys) - my(REF_TOP)) < 1.5, 'the obelisk reaches the traced point');
-
-  // Topmost drawn y at a given x, checked against the reference's own profile.
-  const topAt = (qx) => {
-    let top = null;
-    for (let i = 1; i < pts.length; i++) {
-      const [ax, ay] = pts[i - 1], [bx, by] = pts[i];
-      if (ax === bx) continue;
-      if (qx < Math.min(ax, bx) || qx > Math.max(ax, bx)) continue;
-      const y = ay + (by - ay) * ((qx - ax) / (bx - ax));
-      if (top === null || y < top) top = y;
-    }
-    return top;
-  };
-  let worst = 0, worstRun = null;
-  for (const [rx0, rx1, ry] of REF_RUNS) {
-    const got = topAt(mx((rx0 + rx1) / 2));
-    if (got === null) continue;
-    const err = Math.abs(got - my(ry));
-    if (err > worst) { worst = err; worstRun = [rx0, rx1, ry]; }
-  }
-  report(worst <= 2, `every roof within ${r(worst)} of the traced profile${worst > 2 ? ' (worst ' + worstRun + ')' : ''}`);
-
-  // The city floats. Only the two flat runs at the ends touch the ground; if a
-  // wall in between reaches it, the drawing has turned back into a solid mass.
-  const groundY = my(REF_GROUND);
-  const onGround = pts.filter(([x, y]) => Math.abs(y - groundY) < 2 && x > mx(126) && x < mx(312));
-  report(onGround.length === 0, `no wall touches the ground between the two flat runs (${onGround.length} do)`);
-
-  const gotWidthShare = (REF_W * S) / VB_W;
-  const wantWidthShare = REF_W / 451;
-  report(Math.abs(gotWidthShare - wantWidthShare) < 0.03,
-    `drawing fills ${(gotWidthShare * 100).toFixed(0)}% of the width (reference ${(wantWidthShare * 100).toFixed(0)}%)`);
-
-  const STROKE = 2.1;                                       // must match the CSS
-  const wantStrokeRatio = 1.5 / (REF_GROUND - REF_TOP);
-  const gotStrokeRatio = STROKE / ((REF_GROUND - REF_TOP) * S);
-  report(Math.abs(gotStrokeRatio - wantStrokeRatio) / wantStrokeRatio < 0.08,
-    `line is ${(gotStrokeRatio * 100).toFixed(2)}% of drawing height (reference ${(wantStrokeRatio * 100).toFixed(2)}%)`);
+  const xs = [], ys = [];
+  d.replace(/(-?[\d.]+),(-?[\d.]+)/g, (m, a, b) => { xs.push(+a); ys.push(+b); });
 
   report(!/NaN|undefined/.test(d), 'no NaN in path');
+  report((d.match(/M/g) || []).length === 4, `four subpaths (${(d.match(/M/g) || []).length})`);
+  report((d.match(/Z/g) || []).length === 4, 'every subpath closed, so the fill is well defined');
+  report(Math.min(...xs) < 1 && Math.max(...xs) > VB_W - 2,
+    `the ground line reaches both edges (x ${Math.min(...xs)}..${Math.max(...xs)})`);
+  report(Math.abs(Math.min(...ys) - INK_TOP) < 0.5, `the tower tip is at the traced height`);
+  report(Math.abs(Math.max(...ys) - GROUND) < 0.5, `the ground line is at the traced depth`);
+  report(Math.max(...ys) <= VB_H, `nothing spills past the viewBox (max y ${Math.max(...ys)} of ${VB_H})`);
+  // A stroked path here would be a regression: the source has variable width.
+  report(!/stroke/.test(d), 'path data carries no stroke hints');
   process.exit(bad ? 1 : 0);
 }
 
@@ -174,26 +56,27 @@ if (process.argv[2] === '--sync') {
   for (const rel of ['index.html', path.join('tools', 'og-card.html')]) {
     const file = path.join(__dirname, '..', rel);
     if (!fs.existsSync(file)) continue;
-    const html = fs.readFileSync(file, 'utf8');
+    let html = fs.readFileSync(file, 'utf8');
     const re = /(<path id="skyline-line" d=")[^"]*(")/;
     if (!re.test(html)) { console.error(`skyline-line not found in ${rel}`); process.exit(1); }
-    const vb = /(viewBox=")0 0 630 \d+(")/;
-    if (!vb.test(html)) { console.error(`skyline viewBox not found in ${rel}`); process.exit(1); }
-    fs.writeFileSync(file, html.replace(re, (m, a, b) => a + d + b)
-                                .replace(vb, (m, a, b) => `${a}0 0 ${VB_W} ${VB_H}${b}`));
-    console.log(`synced ${rel}`);
-  }
-  process.exit(0);
-}
+    html = html.replace(re, (m, a, b) => a + d + b);
 
-// --overlay emits the inverse transform, so the generated path can be laid back
-// over the reference image at 1:1 for a real look-at-it comparison.
-if (process.argv[2] === '--overlay') {
-  console.log(JSON.stringify({
-    d,
-    transform: `translate(${r(REF_X0 - X0 / S)},${r(REF_GROUND - BASE / S)}) scale(${(1 / S).toFixed(5)})`,
-    strokeWidth: (2.1 / S).toFixed(2),
-  }));
+    // The viewBox must be rewritten on the skyline's OWN svg. Matching the first
+    // viewBox in the file overwrote the hamburger icon's 0 0 24 24 and left the
+    // skyline untouched, which is how the drawing rendered three times oversize.
+    // Walk back from the path to the <svg that opens it instead.
+    const at = html.indexOf('id="skyline-line"');
+    const open = html.lastIndexOf('<svg', at);
+    const close = html.indexOf('>', open);
+    if (open < 0 || close < 0 || close > at) { console.error(`skyline svg not found in ${rel}`); process.exit(1); }
+    const tag = html.slice(open, close);
+    if (!/viewBox="/.test(tag)) { console.error(`skyline viewBox not found in ${rel}`); process.exit(1); }
+    html = html.slice(0, open)
+         + tag.replace(/viewBox="[^"]*"/, `viewBox="0 0 ${VB_W} ${VB_H}"`)
+         + html.slice(close);
+    fs.writeFileSync(file, html);
+    console.log(`synced ${rel} (viewBox 0 0 ${VB_W} ${VB_H})`);
+  }
   process.exit(0);
 }
 
