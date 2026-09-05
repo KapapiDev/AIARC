@@ -219,6 +219,12 @@ main{padding-top:var(--header-h)}
 .skyline{position:absolute;top:30%;left:0;right:0;width:100%;pointer-events:none}
 .skyline-clip{width:100%;overflow:hidden}
 .skyline svg{display:block;width:100%;min-width:900px;height:auto}
+/* The viewBox transform scales the stroke with the viewport, so a declared 1.5
+   became 4.5px at 1920 and the hairline read as a heavy outline. Pinning it to a
+   flat 1.5px went too far the other way: at 1920 the drawing is 272px tall, and
+   the reference's line is about 1.1% of its drawing height. 0.16vw holds that
+   ratio at every width, with a cap so ultrawide screens do not thicken it again. */
+#skyline-line{vector-effect:non-scaling-stroke;stroke-width:clamp(1.3px,0.16vw,3.2px)}
 
 /* ── motion ───────────────────────────────────────────────────────────────── */
 @keyframes reveal{to{opacity:1;transform:translateY(0)}}
