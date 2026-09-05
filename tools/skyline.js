@@ -40,19 +40,21 @@ const to = (x, y) => pts.push([x, y]);
 //   spire - carries a thin mast
 //   twin  - two narrow towers in one gesture, dipping between without reaching ground
 const plan = [
-  [100, 50, 150, 'block'],
-  [142, 18, 116, 'block'],
-  [168, 40, 138, 'block'],
-  [200, 16, 105, 'block'],
-  [236, 32, 131, 'block'],
-  [262, 18, 121, 'spire'],
-  [292, 26, 106, 'twin'],
-  [312, 42, 134, 'block'],
-  [350, 15, 114, 'block'],
-  [388, 36, 146, 'block'],
-  [418, 16, 122, 'block'],
-  [430, 46, 156, 'block'],
-  [500, 24, 167, 'block'],
+  [158, 26, 150, 'block'],
+  [182, 16, 132, 'block'],
+  [203, 14, 116, 'block'],
+  [215, 16, 108, 'peak'],
+  [234, 20, 106, 'twin'],
+  [252, 13, 140, 'block'],
+  [266, 22, 124, 'spire'],
+  [287, 15, 152, 'block'],
+  [305, 26, 133, 'block'],
+  [328, 14, 118, 'block'],
+  [349, 23, 151, 'block'],
+  [370, 17, 137, 'block'],
+  [396, 28, 160, 'block'],
+  [424, 19, 145, 'block'],
+  [452, 26, 168, 'block'],
 ];
 
 to(0, BASE + jit(0.6));
@@ -74,12 +76,16 @@ for (const [x, w, top, kind] of plan) {
     to(c + jit(0.7), top - 21 + jit(1.5));      // the mast
     to(c + 2 + jit(0.8), top + jit(1.2));
     to(x + w + jit(1.4), top + jit(1.6));
+  } else if (kind === 'peak') {
+    // pointed roof: the reference's tallest tower comes to a point, not a parapet
+    to(x + w * 0.5 + jit(0.9), top - 13 + jit(1.4));
+    to(x + w + jit(1.3), top + jit(1.5));
   } else {
     to(x + w + jit(1.4), top + jit(1.6));       // across the roof
   }
 
   // down the right edge and PAST the ground, then back up: this is the crossing
-  to(x + w + jit(1.6), BASE + 3 + rnd() * 6);
+  to(x + w + jit(1.6), BASE + 2 + rnd() * 7);
   to(x + w + 2 + jit(1.5), BASE + jit(0.7));
 }
 
@@ -119,7 +125,7 @@ if (process.argv[2] === '--check') {
       if (cross(seg[i][0], seg[i][1], seg[j][0], seg[j][1])) hits++;
   report(hits >= plan.length, `${hits} self-intersections (>= ${plan.length}, one per building)`);
 
-  const dips = ys.filter((y) => y > BASE + 3).length;
+  const dips = ys.filter((y) => y > BASE + 1.5).length;
   report(dips >= plan.length, `${dips} descenders cross the ground line`);
 
   report(!/NaN|undefined/.test(d), 'no NaN in path');
