@@ -29,9 +29,9 @@ const VB_H = 300;
 // scale. That is heavier than the 1.9 this replaces, so it lands between the
 // two: present enough to match the reference's weight, still a thin line.
 // non-scaling-stroke takes it out of the viewBox scale so the CSS can hold it in
-// real pixels - 0.156vw is exactly this at 1920, with a floor because the
+// real pixels - 0.1716vw is exactly this at 1920, with a floor because the
 // proportional width on a 390px phone is 0.6px, which is a smear not a line.
-const STROKE = 3;
+const STROKE = 3.3;
 // Bottom rung of the hero's brightness ladder: headline 100, subhead 70, this 40.
 // Same white, half weight - at this level the drawing is atmosphere behind the
 // copy rather than a second thing to read. Geometry and STROKE are untouched.
