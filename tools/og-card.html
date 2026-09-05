@@ -27,7 +27,7 @@ body{
 }
 h1{
   margin:0;font-family:'Libre Baskerville','Noto Serif KR',serif;font-weight:400;
-  font-size:68px;line-height:1.15;letter-spacing:-.025em;word-break:keep-all;
+  font-size:62px;line-height:1.15;letter-spacing:-.025em;word-break:keep-all;
 }
 h1 .line{display:block}
 p{
@@ -35,11 +35,10 @@ p{
   font-size:23px;line-height:1.6;color:#a4a19b;word-break:keep-all;
 }
 /* The svg is 1200 * 360/630 = 685.7px tall and its baseline sits at y=177 of the
-   360 viewBox, i.e. 337.1px down. Top = 630 - 337.1 puts that baseline flush with
-   the bottom edge, so the buildings occupy the lower band instead of the headline. */
-.skyline{position:absolute;left:0;right:0;top:293px;width:100%}
+   360 viewBox, i.e. 337.1px down. 276 puts that ground line at y=613, leaving room
+   for the descenders that stab below it instead of cropping them at the edge. */
+.skyline{position:absolute;left:0;right:0;top:276px;width:100%}
 .skyline svg{display:block;width:100%;height:auto}
-#skyline-front{fill:#181818}
 </style>
 </head>
 <body>
@@ -52,8 +51,7 @@ p{
 
   <div class="skyline">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 630 360" preserveAspectRatio="none" aria-hidden="true">
-      <path id="skyline-back" d="M 0,177 L 40,177 L 40,150 L 90,150 L 90,142 L 118,142 L 118,177 L 160,177 L 160,128 L 190,128 L 190,118 L 196.6,118 L 196.6,111 L 205.4,111 L 205.4,118 L 212,118 L 212,177 L 270,177 L 270,150 L 314,150 L 314,142 L 340,142 L 340,177 L 400,177 L 400,132 L 432,132 L 432,140 L 470,140 L 470,177 L 505,177 L 505,146 L 535,146 L 535,158 L 561,158 L 561,177 L 630,177" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.16"/>
-      <path id="skyline-front" d="M 0,177 L 0,166 L 26,166 L 26,158 L 35,152 L 44,158 L 44,152 L 74,152 L 74,144 L 78.2,144 L 78.2,137 L 83.8,137 L 83.8,144 L 88,144 L 88,177 L 96,177 L 96,148 L 130,148 L 130,136 L 146,136 L 146,142 L 149.4,142 L 149.4,138 L 153.2,138 L 153.2,134 L 162.8,134 L 162.8,138 L 166.6,138 L 166.6,142 L 170,142 L 170,177 L 178,177 L 178,138 L 200,138 L 200,118 L 203.1,118 L 204.6,103.7 L 206,95 L 207.4,103.7 L 208.9,118 L 212,118 L 212,130 L 238,130 L 238,124 L 245,124 L 245,112 L 245,124 L 252,124 L 252,177 L 260,177 L 260,156 L 300,156 L 300,148 L 310,142 L 320,148 L 320,158 L 344,158 L 344,177 L 352,177 L 352,142 L 358.6,142 L 358.6,134 L 367.4,134 L 367.4,142 L 374,142 L 374,148 L 408,148 L 408,136 L 411.2,136 L 411.2,127 L 420.8,127 L 420.8,136 L 424,136 L 424,177 L 432,177 L 432,138 L 458,138 L 458,128 L 464.5,128 L 464.5,113 L 464.5,128 L 471,128 L 471,133 L 474.4,133 L 474.4,128.5 L 478.2,128.5 L 478.2,124 L 487.8,124 L 487.8,128.5 L 491.6,128.5 L 491.6,133 L 495,133 L 495,146 L 525,146 L 525,177 L 533,177 L 533,156 L 561,156 L 561,164 L 572,159 L 583,164 L 583,172 L 603,172 L 603,177 L 630,177" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill-opacity="1" stroke-opacity="0.4"/>
+      <path id="skyline-line" d="M 0,176.9 L 40,177.2 L 96,177.4 L 101.2,149.9 L 150.6,150.8 L 150,180.3 L 150.7,176.4 L 138.6,176.7 L 141.1,116.2 L 160.4,115.6 L 160.8,184.4 L 161.3,176.5 L 164.5,177.7 L 166.8,138.7 L 207.4,139.3 L 208.9,185.7 L 209.6,176.9 L 197.7,176.6 L 199.8,104.7 L 217,105.5 L 214.6,185.7 L 217.9,177.3 L 231.8,176.9 L 234.6,130.9 L 267,131.7 L 268.3,180.1 L 269.7,176.6 L 259,176.4 L 263.1,121.2 L 268.3,121.8 L 271.1,100.6 L 273.2,120.6 L 280,122.3 L 278.4,181.5 L 280.5,176.6 L 289.3,176.6 L 291.2,105.9 L 304.4,106.4 L 304.3,127.8 L 306.9,95.5 L 317,97.9 L 318.4,182.2 L 320.1,176.7 L 309.7,177.2 L 310.8,132.4 L 353.2,134.6 L 354.4,184.7 L 355.9,177.5 L 345.9,176.3 L 351.1,114.8 L 366,112.7 L 365.9,183.9 L 367.5,177.1 L 386.1,177 L 388.1,146.7 L 425.3,146.9 L 423.7,185.9 L 425.8,177.4 L 415,176.9 L 417,122.1 L 433.7,121.1 L 435.6,183.5 L 436.3,177.3 L 428.2,177.3 L 429.7,157 L 475.6,157.5 L 475.1,184.7 L 477.2,177 L 496.8,176.7 L 501.3,167.2 L 524.4,166 L 522.5,184.7 L 524.6,177 L 586,177.3 L 630,177.3" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
     </svg>
   </div>
 </body>

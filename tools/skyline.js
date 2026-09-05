@@ -1,173 +1,145 @@
-// Generates the hero skyline path(s).
+// Generates the hero skyline: a continuous one-line drawing.
 //
-// Same viewBox / baseline / y-range as Altitude's mountain ridge (0 0 630 360, base
-// y=177, apex y=95) so the graphic lands in the identical screen position at every
-// width. Straight segments only: the ridge's C-curves become elevation lines.
+// Same viewBox / baseline / y-band as Altitude's mountain ridge (0 0 630 360, base
+// y=177, apex y~95) so the graphic keeps its screen position at every width.
 //
-// Two things drive the composition:
+// The earlier version was a clean architectural elevation, drawn strictly left to
+// right with the pen lifting between blocks. This is the opposite: ONE stroke that
+// never lifts. Each building is traced up the left edge, across the roof, then down
+// past the ground line before coming back up to continue, so the line crosses
+// itself at every building. Those crossings, plus a small seeded wobble, are what
+// make it read as drawn by hand rather than plotted.
 //
-// 1. Real skylines are power-law, not a comb. Seoul is one 555m tower against a
-//    245-333m cluster and a long low-rise tail. Mapping that ratio onto the ridge
-//    band (82 units) gives one dominant tower, two secondaries, a mid group, and a
-//    lot of low mass -- the height hierarchy the first version was missing.
-// 2. Width has to vary as much as height. Narrow spires next to wide slabs are what
-//    stop it reading as a row of same-size boxes.
-//
-// Roof heights are fitted to the ridge's own y-values across x (177 at both edges,
-// ~148 by x=60, peak near x=180, dip near x=290, secondary rise near x=470), so the
-// skyline reads as the same silhouette rebuilt out of buildings.
-//
-// The ridge never returns to a baseline mid-span, so neither does this: buildings
-// share party walls inside a block, and only a few streets drop to the ground.
+// Two consequences of the style, both deliberate:
+//   - x is NOT monotonic any more. The pen doubles back; that is the whole point.
+//   - there is no fill and no second depth plane. A one-line drawing is just a line.
 
 const BASE = 177;
 const APEX = 95;
+const OVERSHOOT_MAX = 12; // how far below the ground line a descender may stab
+
+// deterministic wobble, so the committed path is stable across runs
+let seed = 20260905;
+function rnd() {
+  seed = (seed * 1664525 + 1013904223) % 4294967296;
+  return seed / 4294967296;
+}
+const jit = (a) => (rnd() - 0.5) * 2 * a;
+
 const r = (n) => Math.round(n * 10) / 10;
+const pts = [];
+const to = (x, y) => pts.push([x, y]);
 
-function buildPath(blocks) {
-  const p = [];
-  const to = (x, y) => p.push(`L ${r(x)},${r(y)}`);
+// --- composition -------------------------------------------------------------
+// Follows the reference: long flat ground on the left, a rising mid-rise group,
+// the tall cluster a little past centre with a spire, then a descending tail and
+// flat ground again on the right.
+//
+// [x, width, roofY, kind]
+//   block - plain building
+//   spire - carries a thin mast
+//   twin  - two narrow towers in one gesture, dipping between without reaching ground
+const plan = [
+  [100, 50, 150, 'block'],
+  [142, 18, 116, 'block'],
+  [168, 40, 138, 'block'],
+  [200, 16, 105, 'block'],
+  [236, 32, 131, 'block'],
+  [262, 18, 121, 'spire'],
+  [292, 26, 106, 'twin'],
+  [312, 42, 134, 'block'],
+  [350, 15, 114, 'block'],
+  [388, 36, 146, 'block'],
+  [418, 16, 122, 'block'],
+  [430, 46, 156, 'block'],
+  [500, 24, 167, 'block'],
+];
 
-  // Pen enters at (x, y) on the left of the roof, leaves at (x + w, y).
-  const roofs = {
-    flat: (x, w, y) => to(x + w, y),
+to(0, BASE + jit(0.6));
+to(40, BASE + jit(0.8));
 
-    // thin mast on a flat roof
-    mast: (x, w, y, h = 16) => {
-      const c = x + w * 0.5;
-      to(c, y); to(c, y - h); to(c, y); to(x + w, y);
-    },
+for (const [x, w, top, kind] of plan) {
+  to(x - 3 + jit(1.2), BASE + jit(0.8));        // approach along the ground
+  to(x + jit(1.4), top + jit(1.6));             // up the left edge, slightly off-vertical
 
-    // pitched roof, low-rise only
-    gable: (x, w, y, rise = 7) => {
-      to(x + w * 0.5, y - rise); to(x + w, y);
-    },
-
-    // raised parapet
-    crown: (x, w, y, h = 9) => {
-      to(x + w * 0.3, y); to(x + w * 0.3, y - h); to(x + w * 0.7, y - h);
-      to(x + w * 0.7, y); to(x + w, y);
-    },
-
-    // art-deco setback
-    setback: (x, w, y, d = 12) => {
-      to(x + w * 0.2, y); to(x + w * 0.2, y - d); to(x + w * 0.8, y - d);
-      to(x + w * 0.8, y); to(x + w, y);
-    },
-
-    // tapered shaft rising to a spire — the dominant tower's crown
-    taper: (x, w, y, h = 26) => {
-      const c = x + w * 0.5;
-      to(x + w * 0.26, y); to(x + w * 0.38, y - h * 0.62);
-      to(c, y - h); to(x + w * 0.62, y - h * 0.62);
-      to(x + w * 0.74, y); to(x + w, y);
-    },
-
-    // stepped crown, two shoulders
-    stepped: (x, w, y, d = 10) => {
-      to(x + w * 0.14, y); to(x + w * 0.14, y - d * 0.5);
-      to(x + w * 0.3, y - d * 0.5); to(x + w * 0.3, y - d);
-      to(x + w * 0.7, y - d); to(x + w * 0.7, y - d * 0.5);
-      to(x + w * 0.86, y - d * 0.5); to(x + w * 0.86, y); to(x + w, y);
-    },
-  };
-
-  p.push(`M 0,${BASE}`);
-  let cursor = 0;
-  for (const block of blocks) {
-    if (block.x > cursor) to(block.x, BASE); // street
-    let x = block.x;
-    for (const [w, y, kind, arg] of block.buildings) {
-      to(x, y);                              // party wall
-      roofs[kind](x, w, y, arg);
-      x += w;
-    }
-    to(x, BASE);
-    cursor = x;
+  if (kind === 'twin') {
+    const mid = x + w * 0.45;
+    to(mid + jit(1.2), top + jit(1.5));
+    to(mid + jit(1.4), top + 22 + jit(2));      // dip between the towers
+    to(mid + 3 + jit(1.2), top - 9 + jit(2));   // back up, taller
+    to(x + w + jit(1.4), top - 7 + jit(1.8));
+  } else if (kind === 'spire') {
+    const c = x + w * 0.5;
+    to(c - 2 + jit(0.8), top + jit(1.2));
+    to(c + jit(0.7), top - 21 + jit(1.5));      // the mast
+    to(c + 2 + jit(0.8), top + jit(1.2));
+    to(x + w + jit(1.4), top + jit(1.6));
+  } else {
+    to(x + w + jit(1.4), top + jit(1.6));       // across the roof
   }
-  to(630, BASE);
-  return p.filter((seg, i) => seg !== p[i - 1]).join(' ');
+
+  // down the right edge and PAST the ground, then back up: this is the crossing
+  to(x + w + jit(1.6), BASE + 3 + rnd() * 6);
+  to(x + w + 2 + jit(1.5), BASE + jit(0.7));
 }
 
-// --- foreground ---------------------------------------------------------------
-// Macro silhouette echoes the ridge: low left shoulder, dominant tower near x=180,
-// a dip around x=300, a secondary rise near x=470, tapering right.
-const front = [
-  { x: 0,   buildings: [[26, 166, 'flat'], [18, 158, 'gable', 6], [30, 152, 'flat'], [14, 144, 'crown', 7]] },
-  { x: 96,  buildings: [[34, 148, 'flat'], [16, 136, 'flat'], [24, 142, 'stepped', 8]] },
-  { x: 178, buildings: [[22, 138, 'flat'], [12, 118, 'taper', 23], [26, 130, 'flat'], [14, 124, 'mast', 12]] },
-  { x: 260, buildings: [[40, 156, 'flat'], [20, 148, 'gable', 6], [24, 158, 'flat']] },
-  { x: 352, buildings: [[22, 142, 'crown', 8], [34, 148, 'flat'], [16, 136, 'setback', 9]] },
-  { x: 432, buildings: [[26, 138, 'flat'], [13, 128, 'mast', 15], [24, 133, 'stepped', 9], [30, 146, 'flat']] },
-  { x: 533, buildings: [[28, 156, 'flat'], [22, 164, 'gable', 5], [20, 172, 'flat']] },
-];
+to(586, BASE + jit(0.8));
+to(630, BASE + jit(0.6));
 
-// --- background ---------------------------------------------------------------
-// A second, much fainter plane. Sparse and simple on purpose: it reads as depth,
-// not as more detail. Sits behind and slightly higher so it peeks between the
-// front masses rather than competing with them.
-const back = [
-  { x: 40,  buildings: [[50, 150, 'flat'], [28, 142, 'flat']] },
-  { x: 160, buildings: [[30, 128, 'flat'], [22, 118, 'crown', 7]] },
-  { x: 270, buildings: [[44, 150, 'flat'], [26, 142, 'flat']] },
-  { x: 400, buildings: [[32, 132, 'flat'], [38, 140, 'flat']] },
-  { x: 505, buildings: [[30, 146, 'flat'], [26, 158, 'flat']] },
-];
-
-const paths = { front: buildPath(front), back: buildPath(back) };
+const d = 'M ' + pts.map(([x, y]) => `${r(x)},${r(y)}`).join(' L ');
 
 // --- checks -------------------------------------------------------------------
 if (process.argv[2] === '--check') {
   let bad = 0;
   const report = (pass, msg) => { console.log((pass ? 'ok   ' : 'FAIL ') + msg); if (!pass) bad++; };
 
-  for (const [name, d] of Object.entries(paths)) {
-    const pts = [...d.matchAll(/[ML] (-?[\d.]+),(-?[\d.]+)/g)].map((m) => [+m[1], +m[2]]);
-    const xs = pts.map((q) => q[0]);
-    const ys = pts.map((q) => q[1]);
-    // drawn left-to-right, so x must never double back or the stroke overdraws itself
-    const backtrack = xs.findIndex((x, i) => i && x < xs[i - 1] - 1e-9);
-    const top = Math.min(...ys);
-    report(top >= APEX - 1 && top <= (name === 'front' ? 100 : 130),
-      `${name}: apex ${top} inside its band`);
-    report(Math.max(...ys) === BASE, `${name}: baseline ${Math.max(...ys)} === ${BASE}`);
-    report(xs[0] === 0 && xs[xs.length - 1] === 630, `${name}: spans 0..630`);
-    report(backtrack === -1, `${name}: x monotonic (first backtrack ${backtrack})`);
-    report(!/NaN|undefined/.test(d), `${name}: no NaN`);
-  }
+  const xs = pts.map((p) => p[0]);
+  const ys = pts.map((p) => p[1]);
+  const top = Math.min(...ys);
+  const bottom = Math.max(...ys);
 
-  // the front plane must actually have hierarchy, not be a comb: the tallest
-  // building should stand well clear of the median roof height
-  const roofs = front.flatMap((b) => b.buildings.map(([, y]) => y)).sort((a, b) => a - b);
-  const tallest = roofs[0];
-  const median = roofs[Math.floor(roofs.length / 2)];
-  report(median - tallest >= 25, `front: hierarchy, median roof ${median} vs tallest ${tallest}`);
+  report((d.match(/M/g) || []).length === 1, 'a single unbroken stroke (one M command)');
+  report(top >= APEX - 4 && top <= 100, `apex ${r(top)} inside the ridge band`);
+  report(bottom <= BASE + OVERSHOOT_MAX, `deepest descender ${r(bottom)} <= ${BASE + OVERSHOOT_MAX}`);
+  report(xs[0] === 0 && xs[xs.length - 1] === 630, 'spans the full 0..630 viewBox');
+  report(Math.abs(ys[0] - BASE) < 2 && Math.abs(ys[ys.length - 1] - BASE) < 2,
+    'both ends sit on the ground line');
 
-  const widths = front.flatMap((b) => b.buildings.map(([w]) => w));
-  report(Math.max(...widths) / Math.min(...widths) >= 3,
-    `front: width variance ${Math.min(...widths)}..${Math.max(...widths)} (>=3x)`);
+  // The defining property of this style is that the stroke crosses ITSELF. Counting
+  // backtracks in x was only a proxy and stopped tracking once the gaps widened, so
+  // measure the real thing: proper intersections between non-adjacent segments.
+  const seg = pts.slice(0, -1).map((p, i) => [p, pts[i + 1]]);
+  const cross = (a, b, c, dd) => {
+    const o = (p, q, s) => Math.sign((q[0] - p[0]) * (s[1] - p[1]) - (q[1] - p[1]) * (s[0] - p[0]));
+    return o(a, b, c) !== o(a, b, dd) && o(c, dd, a) !== o(c, dd, b);
+  };
+  let hits = 0;
+  for (let i = 0; i < seg.length; i++)
+    for (let j = i + 2; j < seg.length; j++)
+      if (cross(seg[i][0], seg[i][1], seg[j][0], seg[j][1])) hits++;
+  report(hits >= plan.length, `${hits} self-intersections (>= ${plan.length}, one per building)`);
 
+  const dips = ys.filter((y) => y > BASE + 3).length;
+  report(dips >= plan.length, `${dips} descenders cross the ground line`);
+
+  report(!/NaN|undefined/.test(d), 'no NaN in path');
   process.exit(bad ? 1 : 0);
 }
 
 if (process.argv[2] === '--sync') {
   const fs = require('fs');
   const path = require('path');
-  // the social card reuses the same silhouette, so it is synced from here too
   const targets = ['index.html', path.join('tools', 'og-card.html')];
   for (const rel of targets) {
     const file = path.join(__dirname, '..', rel);
     if (!fs.existsSync(file)) continue;
-    let html = fs.readFileSync(file, 'utf8');
-    for (const [name, d] of Object.entries(paths)) {
-      const re = new RegExp(`(<path id="skyline-${name}" d=")[^"]*(")`);
-      if (!re.test(html)) { console.error(`skyline-${name} not found in ${rel}`); process.exit(1); }
-      html = html.replace(re, (m, a, b) => a + d + b);
-    }
-    fs.writeFileSync(file, html);
+    const html = fs.readFileSync(file, 'utf8');
+    const re = /(<path id="skyline-line" d=")[^"]*(")/;
+    if (!re.test(html)) { console.error(`skyline-line not found in ${rel}`); process.exit(1); }
+    fs.writeFileSync(file, html.replace(re, (m, a, b) => a + d + b));
     console.log(`synced ${rel}`);
   }
   process.exit(0);
 }
 
-console.log(JSON.stringify(paths, null, 1));
+console.log(d);
