@@ -23,8 +23,11 @@ body{
 }
 .wordmark{
   position:absolute;top:56px;left:64px;z-index:2;
+  display:flex;align-items:center;gap:9px;
   font-size:26px;font-weight:500;letter-spacing:.055em;line-height:1;
 }
+/* same lockup ratio as the page header, against this card's 18.9px caps */
+.wordmark .brand-mark{flex:none;display:block;height:41.4px;width:auto}
 .copy{
   position:absolute;top:140px;left:64px;right:64px;z-index:2;
 }
@@ -69,7 +72,24 @@ p{
 </style>
 </head>
 <body>
-  <div class="wordmark">AIARC</div>
+  <div class="wordmark">
+    <svg class="brand-mark" viewBox="764.91 345.85 479.68 389.15" fill="currentColor" aria-hidden="true" focusable="false">
+<g>
+	<path d="M1154,585l90.59,149.56h-111.34L1064,612c11.6-8.26,26.09-12.44,45-18C1124.42,589.46,1142.03,586.34,1154,585z"/>
+	<path d="M764.91,718.02l242.6-372.17l124.06,201.25c-16.91,2.48-36.85,4.88-56.56,9.9c-22.55,5.74-41.17,12.15-59,19
+		c0-33.08-0.22-64.74-0.22-97.82l-16.54-24.81l-25.26,30.32v113.03h-7.82v-90.97l-18.49,41.35v60.29h-6.58v-52.02l-38.34,68.92
+		c-20.2,11.21-41.47,24-63.41,38.6C811.56,681.37,786.79,700.04,764.91,718.02z"/>
+	<path d="M1138,556c-48.34,9.29-113.13,25.99-182.87,60.02c-77.71,37.92-135.15,83.11-173.68,118.54c28.23,0,56.46,0,84.7,0
+		c20.55-27.16,53.62-64.06,102.77-96.49c72.33-47.72,139.91-61.43,179.09-66.07C1144,565,1142,562,1138,556z"/>
+	<rect x="1013.4" y="633" width="7.56" height="102"/>
+	<rect x="986.83" y="644.03" width="8.27" height="90.97"/>
+	<polygon points="995.1,584.32 986.83,584.32 986.83,488.42 995.1,476.8 	"/>
+	<rect x="966.15" y="657.81" width="7.82" height="77.19"/>
+	<rect x="941.09" y="674.35" width="6.58" height="60.65"/>
+</g>
+</svg>
+    <span>AIARC</span>
+  </div>
 
   <div class="copy">
     <h1>공사가 끝나도 <span class="line">서류는 끝나지 않습니다.</span></h1>
