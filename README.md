@@ -14,6 +14,10 @@
 </p>
 
 <p align="center">
+  <sub><strong>North Star: Architecture AI</strong> · 현재 진입점: 준공 문서 자동화</sub>
+</p>
+
+<p align="center">
   <img alt="Windows-first" src="https://img.shields.io/badge/Windows--first-Desktop-111111" />
   <img alt="Local-first" src="https://img.shields.io/badge/Local--first-Document%20Workflow-111111" />
   <img alt="HWP-aware" src="https://img.shields.io/badge/HWP%20%2F%20HWPX-aware-111111" />
@@ -88,6 +92,36 @@ AIARC가 처음부터 건설업 전체를 자동화하려는 것은 아닙니다
 
 ---
 
+## 핵심 아이디어: Project State Reconstruction
+
+AIARC의 장기적인 핵심은 `건축업에 AI를 적용한다`는 일반적인 AX 선언이 아닙니다.
+
+건축 프로젝트의 실제 상태는 하나의 완전한 데이터베이스에 존재하지 않습니다. 도면, 문서, 이메일, 사진, BIM, 승인 기록, 변경본과 사람의 기억에 흩어져 있습니다.
+
+AIARC가 지향하는 것은 이 흩어진 흔적에서 **현재 프로젝트 상태를 지속적으로 재구성하고, 그 상태를 바탕으로 다음 업무를 판단하고 실행하는 것**입니다.
+
+```text
+문서 · 도면 · 메일 · 사진 · BIM · 변경 기록
+                    ↓
+         Project State Reconstruction
+                    ↓
+       현재 프로젝트 상태 / 관계 / 미결사항
+                    ↓
+          Next-action reasoning
+                    ↓
+             업무 실행
+                    ↓
+         새로운 결과와 변경 발생
+                    ↓
+          프로젝트 상태 갱신
+```
+
+> **AIARC = 프로젝트의 현재 상태를 재구성하고, 그 상태를 바탕으로 다음 업무를 수행하는 AI**
+
+문서는 이 아이디어를 가장 먼저 검증할 수 있는 관측 데이터이기 때문에 첫 진입점으로 선택했습니다.
+
+---
+
 ## 하지만 본질은 '파일 정리'가 아닙니다
 
 건설 문서는 **공사 단계에 따라 역할과 효력이 달라집니다.**
@@ -123,11 +157,9 @@ flowchart LR
 
 AIARC는 단순히 `문서 종류`만 보는 것이 아니라 **공사 단계, 현재 상태, 버전, 관계, 제출 필요성**을 함께 이해하는 방향으로 발전합니다.
 
-내부 제품 관점의 한 문장 정의는 다음과 같습니다.
+문서 생애주기 이해는 최종 정체성이 아니라 **Project State Reconstruction으로 가는 첫 번째 정보 계층**입니다.
 
-> **AIARC = 건설 문서 생애주기 AX**
-
-준공 자동정리는 그 전체 생애주기로 진입하는 첫 번째 제품 경험입니다.
+준공 자동정리는 그 전체 흐름으로 진입하는 첫 번째 제품 경험입니다.
 
 ---
 
@@ -264,30 +296,27 @@ AIARC는 준공 정리 기능 하나에서 끝나는 제품을 목표로 하지 
 ```text
 준공서류 Prototype
 → 실제 현장자료 Validation
-→ Usable Alpha
-→ 품질·자재 문서 workflow
-→ Continuous Closeout
-→ 자재승인·검측
-→ 설계변경·도면 Revision
-→ Multi-project / Team
-→ Construction Document AX
-→ 국내 Architecture Document AX Platform
+→ Construction Document AI
+→ Document Lifecycle AI
+→ Project State Reconstruction
+→ Project Intelligence
+→ Architecture / Construction Agent
+→ Architecture AI
 ```
 
-장기적으로 공통화하려는 문서 생애주기는 다음과 같습니다.
+장기적으로는 프로젝트의 모든 산출물과 변경 흔적을 이용해 현재 상태를 재구성하고, 그 상태를 바탕으로 다음 업무를 수행하는 구조를 지향합니다.
 
 ```text
-수집
-→ 이해
-→ 관계 연결
-→ 생성
-→ 검토
-→ 승인 / 변경
-→ 전달
-→ 회신 추적
-→ 버전 관리
-→ 최종 제출
+관측
+→ 상태 재구성
+→ 관계·미결사항 판단
+→ 다음 업무 선택
+→ 실행
+→ 결과 관측
+→ 상태 갱신
 ```
+
+> **Architecture AI는 산업 카테고리이고, AIARC의 핵심 아이디어는 Project State Reconstruction → Next-action Execution입니다.**
 
 글로벌 확장은 현재 실행목표가 아닙니다. 국내 건축·건설의 실제 업무환경을 충분히 깊게 해결한 뒤에만 검토합니다.
 
@@ -326,5 +355,5 @@ AIARC는 준공 정리 기능 하나에서 끝나는 제품을 목표로 하지 
 
 <p align="center">
   <strong>AIARC = AI + ARC</strong><br/>
-  <sub>Architecture에서 출발해, 흩어진 건설 문서와 업무 단계를 하나의 흐름으로 연결합니다.</sub>
+  <sub>Architecture에서 출발해, 프로젝트의 흩어진 흔적을 하나의 현재 상태와 다음 행동으로 연결합니다.</sub>
 </p>
