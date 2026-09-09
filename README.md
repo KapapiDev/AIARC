@@ -5,7 +5,7 @@
 <h1 align="center">AIARC</h1>
 
 <p align="center">
-  <strong>건설현장 폴더를 통째로 넣으면,<br/>AI가 문서를 정리하고 빠진 서류와 잘못된 최신본까지 찾아줍니다.</strong>
+  <strong>건축 프로젝트의 상태를 읽고,<br/>다음 일을 시작하는 AI.</strong>
 </p>
 
 <p align="center">
