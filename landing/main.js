@@ -11,7 +11,7 @@ document.addEventListener('click', event => { if (!event.target.closest('.nav'))
 const steps = {
   drop: { title: '현장 폴더를 그대로 놓으세요.', note: '파일 이름과 형식을 확인하고, 분석을 시작합니다.', alt: 'AIARC 캔버스에 파일과 폴더를 놓는 드롭 화면' },
   plan: { title: '정리할 문서와 확인할 항목을 한눈에.', note: '47개 중 45개 분류 · 2개 보류. 분류된 문서 중 내용 확인 2개 · 사본 후보 3개.', alt: '47개 문서의 분류와 중복 후보, 누락을 보여 주는 AIARC 정리안' },
-  organized: { title: '한 번의 확인으로, 문서는 제자리로.', note: '전체 정리 후 현장 문서 트리가 업데이트됩니다. 원본 문서는 변경하지 않습니다.', alt: '자재, 품질, 감리, 공사, 준공 문서함에 45개 문서가 정리되고 2개는 보류된 실제 화면' }
+  organized: { title: '전체 정리 후 문서 트리를 확인합니다.', note: '전체 정리 후 현장 문서 트리가 업데이트됩니다. 원본 문서는 변경하지 않습니다.', alt: '자재, 품질, 감리, 공사, 준공 문서함에 45개 문서가 정리되고 2개는 보류된 실제 화면' }
 };
 function animateImage(image) { image.classList.remove('image-enter'); requestAnimationFrame(() => image.classList.add('image-enter')); }
 function selectStep(key, focus = false) {
