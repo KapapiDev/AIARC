@@ -5,7 +5,7 @@
 <h1 align="center">AIARC</h1>
 
 <p align="center">
-  <strong>건축 프로젝트의 상태를 읽고,<br/>다음 일을 시작하는 AI.</strong>
+  <strong>공사가 끝나도,<br/>서류는 끝나지 않습니다.</strong>
 </p>
 
 <p align="center">
