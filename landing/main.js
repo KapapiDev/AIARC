@@ -10,8 +10,8 @@ document.addEventListener('click', event => { if (!event.target.closest('.nav'))
 
 const steps = {
   drop: { title: '현장 폴더를 그대로 놓으세요.', note: '파일 이름과 형식을 확인하고, 분석을 시작합니다.', alt: 'AIARC 캔버스에 파일과 폴더를 놓는 드롭 화면' },
-  plan: { title: '정리할 문서와 확인할 항목을 한눈에.', note: '47개 중 45개 분류 · 2개 보류. 분류된 문서 중 내용 확인 2개 · 사본 후보 3개.', alt: '47개 문서의 분류와 중복 후보, 누락을 보여 주는 AIARC 정리안' },
-  organized: { title: '전체 정리 후 문서 트리를 확인합니다.', note: '전체 정리 후 현장 문서 트리가 업데이트됩니다. 원본 문서는 변경하지 않습니다.', alt: '자재, 품질, 감리, 공사, 준공 문서함에 45개 문서가 정리되고 2개는 보류된 실제 화면' }
+  plan: { title: '정리할 문서와 확인할 항목을 한눈에.', note: '샘플 47개 중 45개 분류 · 2개 보류. 내용 확인 2개 · 중복 후보 3개 · 누락 3개.', alt: '샘플 문서 47개의 분류와 중복 후보, 누락을 보여 주는 AIARC 정리안' },
+  organized: { title: '정리된 현장 문서함을 확인합니다.', note: '45개가 현장 문서함으로 정리되고, 보류 2개는 따로 남습니다. 원본 파일은 그대로입니다.', alt: '자재, 품질, 감리, 공사, 준공 문서함에 45개 문서가 정리되고 2개는 보류된 실제 화면' }
 };
 function animateImage(image) { image.classList.remove('image-enter'); requestAnimationFrame(() => image.classList.add('image-enter')); }
 function selectStep(key, focus = false) {
@@ -55,7 +55,18 @@ const themeToggle = $('.theme-toggle');
 function setTheme(theme) { document.documentElement.dataset.theme = theme; themeToggle.innerHTML = `화면: ${theme === 'dark' ? '다크' : '라이트'} <span aria-hidden="true">◐</span>`; themeToggle.setAttribute('aria-label', `${theme === 'dark' ? '밝은' : '어두운'} 테마로 전환`); $('meta[name="theme-color"]').content = theme === 'dark' ? '#08090a' : '#f8f8f7'; }
 try { const saved = localStorage.getItem('aiarc-landing-theme'); if (saved === 'light' || saved === 'dark') setTheme(saved); } catch { /* Storage may be disabled; the page remains usable. */ }
 themeToggle.addEventListener('click', () => { const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; setTheme(theme); try { localStorage.setItem('aiarc-landing-theme', theme); } catch {} });
-if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+// Back to top: appears once the hero is well out of view, and doubles as the brand-logo behaviour.
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const toTop = $('.to-top');
+function scrollToTop() { window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' }); }
+toTop.addEventListener('click', () => { scrollToTop(); $('.header .brand').focus({ preventScroll: true }); });
+$$('.brand[href="#"]').forEach(brand => brand.addEventListener('click', event => { event.preventDefault(); closeMenu(); scrollToTop(); }));
+let toTopQueued = false;
+function updateToTop() { toTopQueued = false; toTop.classList.toggle('is-visible', scrollY > innerHeight * 1.2); }
+addEventListener('scroll', () => { if (!toTopQueued) { toTopQueued = true; requestAnimationFrame(updateToTop); } }, { passive: true });
+updateToTop();
+
+if (!reducedMotion.matches && 'IntersectionObserver' in window) {
   const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.remove('is-pending'); observer.unobserve(entry.target); } }), { threshold: .06 });
   $$('.reveal').forEach(element => { element.classList.add('is-pending'); observer.observe(element); });
 }
