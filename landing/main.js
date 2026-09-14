@@ -1,100 +1,293 @@
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
-const menu = $('.menu-toggle');
-const links = $('#nav-links');
-function closeMenu() { menu.setAttribute('aria-expanded', 'false'); links.classList.remove('is-open'); menu.setAttribute('aria-label', '메뉴 열기'); }
-menu.addEventListener('click', () => { const open = menu.getAttribute('aria-expanded') !== 'true'; menu.setAttribute('aria-expanded', String(open)); menu.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기'); links.classList.toggle('is-open', open); });
-$$('a', links).forEach(link => link.addEventListener('click', closeMenu));
-document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
-document.addEventListener('click', event => { if (!event.target.closest('.nav')) closeMenu(); });
-
-const steps = {
-  drop: { title: '현장 폴더를 그대로 놓으세요.', note: '파일 이름과 형식 감지는 실제로 동작합니다. 분류·누락 분석은 샘플 결과를 사용합니다.', alt: 'AIARC 캔버스에 파일과 폴더를 놓는 드롭 화면' },
-  plan: { title: '정리할 문서와 확인할 항목을 한눈에.', note: '샘플 47개 중 45개 분류 · 2개 보류. 내용 확인 2개 · 중복 후보 3개 · 누락 3개.', alt: '샘플 문서 47개의 분류와 중복 후보, 누락을 보여 주는 AIARC 정리안' },
-  organized: { title: '정리된 현장 문서함을 확인합니다.', note: '45개가 현장 문서함으로 정리되고, 보류 2개는 따로 남습니다. 원본 파일은 그대로입니다.', alt: '자재, 품질, 감리, 공사, 준공 문서함에 45개 문서가 정리되고 2개는 보류된 실제 화면' }
-};
-function animateImage(image) { image.classList.remove('image-enter'); requestAnimationFrame(() => image.classList.add('image-enter')); }
-function selectStep(key, focus = false) {
-  const state = steps[key];
-  const image = $('#flow-image'); image.src = `./landing/assets/${key}.png`; image.alt = state.alt; animateImage(image);
-  $('#flow-title').textContent = state.title; $('#flow-note').textContent = state.note;
-  $('#flow-panel').setAttribute('aria-labelledby', `step-${key}`);
-  $$('[data-step]').forEach(button => { const selected = button.dataset.step === key; button.setAttribute('aria-selected', String(selected)); button.tabIndex = selected ? 0 : -1; if (focus && selected) button.focus(); });
-}
-$$('[data-step]').forEach((button, index, buttons) => {
-  button.addEventListener('click', () => selectStep(button.dataset.step));
-  button.addEventListener('keydown', event => { let next; if (event.key === 'ArrowRight') next = (index + 1) % buttons.length; if (event.key === 'ArrowLeft') next = (index + buttons.length - 1) % buttons.length; if (event.key === 'Home') next = 0; if (event.key === 'End') next = buttons.length - 1; if (next !== undefined) { event.preventDefault(); selectStep(buttons[next].dataset.step, true); } });
-});
-$$('[data-evidence]').forEach(button => button.addEventListener('click', () => {
-  $$('[data-evidence]').forEach(item => { const selected = item === button; item.classList.toggle('selected', selected); item.setAttribute('aria-pressed', String(selected)); });
-  const image = $('#evidence-image'); image.src = `./landing/assets/${button.dataset.evidence}.png`; image.alt = button.dataset.evidence === 'evidence' ? '시험성적서의 ABC-120 제품명과 해당 항목으로 연결된 AI 메시지' : '자재승인원의 ABC-100 제품명과 해당 항목으로 연결된 AI 메시지';
-  $('.evidence-image').dataset.image = button.dataset.evidence; animateImage(image);
-}));
-
-// Public illustrative story: these are prepared examples, not project analysis results.
-const stateStory = {
-  original: { moment: '07.03 당시 상태', value: 'A', description: '원도면 A의 위치가 기준인 상태', reason: '아직 변경지시 없음', date: '변경 전', evidence: '원도면 A' },
-  change: { moment: '07.12 당시 상태', value: '변경 중', description: '현장 변경지시가 도착한 상태', reason: '현장 변경지시', date: '7월 12일', evidence: '원도면 A · 변경지시 기록' },
-  revision: { moment: '07.13 당시 상태', value: 'B 후보', description: '변경 내용을 담은 수정도면 B 수신', reason: '현장 변경지시', date: '7월 12일', evidence: '원도면 A · 변경지시 · 수정도면 B' },
-  record: { moment: '07.14 당시 상태', value: 'B', description: '회의록과 메일에서 변경 내용을 확인', reason: '현장 변경지시', date: '7월 12일', evidence: '원도면 A · 수정도면 B · 회의록 · 메일' },
-  built: { moment: '현재 상태', value: 'B', description: '수정도면 B의 위치로 시공된 상태', reason: '현장 변경지시', date: '7월 12일', evidence: '원도면 A · 수정도면 B · 회의록 · 메일 · 현장사진' }
-};
-function selectState(key) {
-  const state = stateStory[key];
-  if (!state) return;
-  for (const field of ['moment', 'value', 'description', 'reason', 'date', 'evidence']) $('#state-' + field).textContent = state[field];
-  $$('[data-state]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.state === key)));
-}
-$$('[data-state]').forEach(button => button.addEventListener('click', () => selectState(button.dataset.state)));
-
-$$('[data-case]').forEach(button => button.addEventListener('click', () => {
-  const confirmed = button.dataset.case === 'state-confirmed';
-  $$('[data-case]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
-  const image = $('#state-case-image');
-  image.src = `./landing/assets/${button.dataset.case}.png`;
-  image.alt = confirmed ? '수정본과 사용자 확인을 거쳐 단열재의 확인 상태와 이력이 갱신된 제품 방향 시연' : '단열재 제품명 불일치의 현재 상태, 변경 이력과 원문 근거를 연결한 제품 방향 시연';
-  const preview = $('.state-case-image');
-  preview.dataset.image = button.dataset.case;
-  preview.dataset.imageTitle = confirmed ? '사용자 확인 후 갱신된 문서 상태' : '단열재의 현재 상태와 변경 이력';
-  animateImage(image);
-}));
-
-const demoDialog = $('#demo-dialog'); const imageDialog = $('#image-dialog');
-const iframe = $('iframe', demoDialog); let dialogOpener;
-function openDialog(dialog, opener) { closeMenu(); dialogOpener = opener; dialog.showModal(); document.body.classList.add('modal-open'); }
-$$('[data-demo]').forEach(button => button.addEventListener('click', () => {
-  openDialog(demoDialog, button);
-  if (!iframe.getAttribute('src')) iframe.src = iframe.dataset.src;
-}));
-iframe.addEventListener('load', () => { $('.demo-loading').hidden = true; });
-$$('[data-image]').forEach(button => button.addEventListener('click', () => {
-  $('#image-title').textContent = button.dataset.imageTitle;
-  const image = $('img', imageDialog); image.src = `./landing/assets/${button.dataset.image}.png`; image.alt = button.dataset.imageTitle;
-  openDialog(imageDialog, button);
-}));
-$$('dialog').forEach(dialog => {
-  $('.close-dialog', dialog).addEventListener('click', () => dialog.close());
-  dialog.addEventListener('click', event => { if (event.target === dialog) { const rect = dialog.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close(); } });
-  dialog.addEventListener('close', () => { document.body.classList.remove('modal-open'); dialogOpener?.focus({ preventScroll: true }); });
-});
-
-// The requested Linear reference establishes dark as the default brand presentation.
-const themeToggle = $('.theme-toggle');
-function setTheme(theme) { document.documentElement.dataset.theme = theme; themeToggle.innerHTML = `화면: ${theme === 'dark' ? '다크' : '라이트'} <span aria-hidden="true">◐</span>`; themeToggle.setAttribute('aria-label', `${theme === 'dark' ? '밝은' : '어두운'} 테마로 전환`); $('meta[name="theme-color"]').content = theme === 'dark' ? '#08090a' : '#f8f8f7'; }
-try { const saved = localStorage.getItem('aiarc-landing-theme'); if (saved === 'light' || saved === 'dark') setTheme(saved); } catch { /* Storage may be disabled; the page remains usable. */ }
-themeToggle.addEventListener('click', () => { const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; setTheme(theme); try { localStorage.setItem('aiarc-landing-theme', theme); } catch {} });
-// Back to top: appears once the hero is well out of view, and doubles as the brand-logo behaviour.
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-const toTop = $('.to-top');
-function scrollToTop() { window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' }); }
-toTop.addEventListener('click', () => { scrollToTop(); $('.header .brand').focus({ preventScroll: true }); });
-$$('.brand[href="#"]').forEach(brand => brand.addEventListener('click', event => { event.preventDefault(); closeMenu(); scrollToTop(); }));
-let toTopQueued = false;
-function updateToTop() { toTopQueued = false; toTop.classList.toggle('is-visible', scrollY > innerHeight * 1.2); }
-addEventListener('scroll', () => { if (!toTopQueued) { toTopQueued = true; requestAnimationFrame(updateToTop); } }, { passive: true });
-updateToTop();
+const narrow = matchMedia('(max-width: 939px)');
 
-if (!reducedMotion.matches && 'IntersectionObserver' in window) {
-  const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.remove('is-pending'); observer.unobserve(entry.target); } }), { threshold: .06 });
-  $$('.reveal').forEach(element => { element.classList.add('is-pending'); observer.observe(element); });
+// Try AIARC. The window hosts the exported browser demo itself; the script below only
+// moves a drawn cursor and presses the app's own buttons, so no product logic lives here.
+const stage = $('#try');
+const view = $('.window-view', stage);
+const frame = $('iframe', stage);
+const cursor = $('.cursor', stage);
+const folder = $('[data-folder]', stage);
+const replay = $('[data-replay]');
+const status = $('#stage-status');
+const DEMO = './demo/index.html';
+
+function fit() {
+  const [width, height] = narrow.matches ? [390, 720] : [1280, 800];
+  frame.style.width = `${width}px`;
+  frame.style.height = `${height}px`;
+  view.style.setProperty('--s', view.clientWidth / width);
 }
+new ResizeObserver(fit).observe(view);
+
+const sleep = (ms, signal) => new Promise((resolve, reject) => {
+  const timer = setTimeout(resolve, ms);
+  signal?.addEventListener('abort', () => { clearTimeout(timer); reject(signal.reason); }, { once: true });
+});
+const say = (text) => { status.textContent = text; };
+
+let loading;
+function load(fresh = false) {
+  if (loading && !fresh) return loading;
+  delete stage.dataset.live;
+  frame.tabIndex = -1;
+  loading = new Promise((resolve) => {
+    frame.addEventListener('load', async () => {
+      const doc = frame.contentDocument;
+      for (let i = 0; i < 200 && !$('#unified-canvas', doc); i++) await sleep(50);
+      await doc.fonts?.ready;
+      for (const type of ['pointerdown', 'click', 'keydown', 'dragenter']) doc.addEventListener(type, (event) => { if (intent(event)) takeOver(); }, true);
+      stage.dataset.live = 'ready';
+      frame.tabIndex = 0;
+      resolve(doc);
+    }, { once: true });
+    fit();
+    if (fresh) frame.contentWindow.location.replace(DEMO); else frame.src = DEMO;
+  });
+  return loading;
+}
+const canvasOf = (doc) => $('#unified-canvas', doc);
+const isFresh = (doc) => canvasOf(doc)?.dataset.state === 'empty' && !$('.conversation-message', doc);
+const appButton = (doc, label, selector = 'button') => $$(selector, doc).find((button) => button.offsetParent && button.textContent.trim() === label);
+async function until(find, signal, timeout = 10000) {
+  for (const end = Date.now() + timeout; Date.now() < end; await sleep(80, signal)) { const found = find(); if (found) return found; }
+  throw new Error('The demo did not reach the expected state.');
+}
+async function freshApp() {
+  const doc = await load();
+  return isFresh(doc) ? doc : load(true);
+}
+
+// Stage coordinates of an element on the page or inside the scaled app.
+function point(element, fx = 0.5, fy = 0.5) {
+  const box = stage.getBoundingClientRect();
+  const rect = element.getBoundingClientRect();
+  let left = 0, top = 0, scale = 1;
+  if (element.ownerDocument !== document) {
+    const outer = frame.getBoundingClientRect();
+    [left, top, scale] = [outer.left, outer.top, outer.width / frame.offsetWidth];
+  }
+  return [left + (rect.left + rect.width * fx) * scale - box.left, top + (rect.top + rect.height * fy) * scale - box.top];
+}
+
+let run, ghost, dragTransfer, running = [];
+let at = [0, 0];
+const translate = ([x, y]) => ({ transform: `translate(${x}px, ${y}px)` });
+function animate(element, keyframes, options, signal) {
+  const animation = element.animate(keyframes, { fill: 'forwards', ...options });
+  running.push(animation);
+  return new Promise((resolve, reject) => {
+    animation.finished.then(resolve, () => reject(signal?.reason));
+    signal?.addEventListener('abort', () => reject(signal.reason), { once: true });
+  });
+}
+function move(to, duration, signal) {
+  const options = { duration, easing: 'cubic-bezier(.45, .05, .2, 1)' };
+  const moves = [animate(cursor, [translate(at), translate(to)], options, signal)];
+  if (ghost) moves.push(animate(ghost, [translate([at[0] - 52, at[1] - 26]), translate([to[0] - 52, to[1] - 26])], options, signal));
+  at = to;
+  return Promise.all(moves);
+}
+async function press(signal) {
+  $('i', cursor).animate([{ opacity: 0.9, transform: 'scale(.4)' }, { opacity: 0, transform: 'scale(1.3)' }], { duration: 420, easing: 'ease-out' });
+  await animate($('svg', cursor), [{ transform: 'scale(1)' }, { transform: 'scale(.86)' }, { transform: 'scale(1)' }], { duration: 200, fill: 'none' }, signal);
+}
+function lift(from) {
+  ghost = folder.cloneNode(true);
+  ghost.removeAttribute('data-folder');
+  ghost.setAttribute('aria-hidden', 'true');
+  ghost.tabIndex = -1;
+  ghost.className = 'desk-item drag-ghost';
+  Object.assign(ghost.style, translate([from[0] - 52, from[1] - 26]));
+  stage.append(ghost);
+  folder.classList.add('is-lifted');
+}
+function settle(dropped) {
+  folder.classList.remove('is-lifted');
+  if (!ghost) return;
+  const done = ghost;
+  ghost = null;
+  if (!dropped) return done.remove();
+  done.animate([{ opacity: 0.92, scale: 1 }, { opacity: 0, scale: 0.6 }], { duration: 240, easing: 'ease-in' }).finished.then(() => done.remove(), () => done.remove());
+}
+function dragSignal(doc, type) {
+  const win = frame.contentWindow;
+  if (type === 'dragenter') {
+    dragTransfer = new win.DataTransfer();
+    dragTransfer.items.add(new win.File([''], 'OOO근린생활시설_준공서류'));
+  }
+  if (!dragTransfer) return;
+  canvasOf(doc).dispatchEvent(new win.DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: dragTransfer }));
+  if (type === 'dragleave') dragTransfer = null;
+}
+
+async function choreography(doc, signal) {
+  const box = stage.getBoundingClientRect();
+  at = [box.width * 0.58, box.height * 0.9];
+  Object.assign(cursor.style, translate(at));
+  await animate(cursor, [{ opacity: 0 }, { opacity: 1 }], { duration: 240 }, signal);
+  await move(point(folder, 0.5, 0.3), 780, signal);
+  await press(signal);
+  lift(at);
+  const dropAt = point(canvasOf(doc), 0.5, 0.3);
+  const carrying = move(dropAt, 1200, signal);
+  carrying.catch(() => {});
+  await sleep(700, signal);
+  dragSignal(doc, 'dragenter');
+  await carrying;
+  await sleep(380, signal);
+  dragSignal(doc, 'dragleave');
+  settle(true);
+  appButton(doc, '샘플로 시작').click();
+  await move(point(canvasOf(doc), 0.56, 0.6), 900, signal);
+  const organize = await until(() => appButton(doc, '정리안 반영', 'button.primary-action'), signal);
+  await sleep(700, signal);
+  await move(point(organize), 760, signal);
+  await press(signal);
+  organize.click();
+  const review = await until(() => appButton(doc, '확인하기', 'button.primary-action'), signal);
+  await sleep(1100, signal);
+  await move(point(review), 700, signal);
+  await press(signal);
+  review.click();
+  const request = await until(() => $('.document-field[data-highlight=true]', doc) && appButton(doc, '보완 요청', 'button.primary-action'), signal);
+  await sleep(1200, signal);
+  await move(point(request, 0.55, 0.85), 820, signal);
+}
+async function instant(doc, signal) {
+  appButton(doc, '샘플로 시작').click();
+  for (const label of ['정리안 반영', '확인하기']) (await until(() => appButton(doc, label, 'button.primary-action'), signal)).click();
+  await until(() => appButton(doc, '보완 요청', 'button.primary-action'), signal);
+}
+function hideCursor(delay = 0) {
+  const fade = cursor.animate([{ opacity: getComputedStyle(cursor).opacity }, { opacity: 0 }], { duration: 260, delay, fill: 'forwards' });
+  fade.finished.then(() => {
+    if (!run) { running.forEach((animation) => animation.cancel()); running = []; }
+    fade.cancel();
+  }, () => {});
+}
+async function play(before) {
+  run?.abort();
+  const controller = run = new AbortController();
+  const { signal } = controller;
+  running.forEach((animation) => animation.cancel());
+  running = [];
+  stage.dataset.state = 'playing';
+  replay.hidden = true;
+  try {
+    const [doc] = await Promise.all([freshApp(), before]);
+    signal.throwIfAborted();
+    say('AIARC 시연을 시작합니다.');
+    await (reducedMotion.matches ? instant(doc, signal) : choreography(doc, signal));
+    stage.dataset.state = 'done';
+    say('시연이 끝났습니다. 화면을 직접 조작하거나 다시 볼 수 있습니다.');
+    hideCursor(1800);
+  } catch {
+    if (!signal.aborted) { stage.dataset.state = 'done'; hideCursor(); }
+  } finally {
+    if (run === controller) run = null;
+    replay.hidden = false;
+  }
+}
+// The visitor's own input always wins: the script stops and the app stays as it is.
+function takeOver() {
+  if (!run) return;
+  run.abort();
+  run = null;
+  if (dragTransfer && frame.contentDocument) dragSignal(frame.contentDocument, 'dragleave');
+  settle(false);
+  hideCursor();
+  stage.dataset.state = 'taken';
+  replay.hidden = false;
+}
+
+function reveal() {
+  const rect = stage.getBoundingClientRect();
+  if (rect.top >= 60 && rect.bottom <= innerHeight) return Promise.resolve();
+  const smooth = !reducedMotion.matches;
+  stage.scrollIntoView({ block: rect.height > innerHeight - 64 ? 'start' : 'center', behavior: smooth ? 'smooth' : 'auto' });
+  return smooth ? sleep(520) : Promise.resolve();
+}
+$$('[data-try]').forEach((button) => {
+  button.addEventListener('click', () => play(reveal()));
+  for (const type of ['pointerenter', 'focus']) button.addEventListener(type, () => load(), { once: true });
+});
+replay.addEventListener('click', () => play(reveal()));
+// A touch that scrolls the page is not a takeover; a tap is.
+const intent = (event) => event.isTrusted && !(event.type === 'pointerdown' && event.pointerType === 'touch');
+for (const type of ['pointerdown', 'click']) stage.addEventListener(type, (event) => { if (intent(event)) { takeOver(); load(); } }, true);
+narrow.addEventListener('change', () => { takeOver(); fit(); });
+
+// Visitors can move the sample folder themselves, by dragging or by pressing it.
+let drag;
+async function openSampleFolder() {
+  const doc = await freshApp();
+  appButton(doc, '샘플로 시작')?.click();
+  stage.dataset.state = 'taken';
+  replay.hidden = false;
+}
+folder.addEventListener('pointerdown', (event) => {
+  if (event.button !== 0) return;
+  drag = { x: event.clientX, y: event.clientY, moved: false };
+  folder.setPointerCapture(event.pointerId);
+});
+folder.addEventListener('pointermove', (event) => {
+  if (!drag) return;
+  if (!drag.moved && Math.hypot(event.clientX - drag.x, event.clientY - drag.y) < 6) return;
+  const box = stage.getBoundingClientRect();
+  const here = [event.clientX - box.left, event.clientY - box.top];
+  if (!drag.moved) { drag.moved = true; lift(here); }
+  Object.assign(ghost.style, translate([here[0] - 52, here[1] - 26]));
+});
+folder.addEventListener('pointerup', (event) => {
+  if (!drag) return;
+  const { moved } = drag;
+  drag = null;
+  const win = $('.window', stage).getBoundingClientRect();
+  const inside = event.clientX >= win.left && event.clientX <= win.right && event.clientY >= win.top && event.clientY <= win.bottom;
+  settle(moved && inside);
+  if (!moved || inside) openSampleFolder();
+});
+folder.addEventListener('pointercancel', () => { drag = null; settle(false); });
+folder.addEventListener('click', (event) => { if (event.detail === 0) openSampleFolder(); });
+
+// Real files dropped anywhere on the stage go to the app, which reads only names, types and sizes locally.
+stage.addEventListener('dragover', (event) => {
+  if (!event.dataTransfer?.types.includes('Files')) return;
+  event.preventDefault();
+  load();
+});
+stage.addEventListener('drop', async (event) => {
+  const files = [...(event.dataTransfer?.files || [])];
+  if (!files.length) return;
+  event.preventDefault();
+  takeOver();
+  await load();
+  const doc = frame.contentDocument, win = frame.contentWindow;
+  const transfer = new win.DataTransfer();
+  files.forEach((file) => transfer.items.add(file));
+  canvasOf(doc).dispatchEvent(new win.DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: transfer }));
+  stage.dataset.state = 'taken';
+  replay.hidden = false;
+});
+
+// Theme, unchanged from the previous landing: dark by default, remembered when chosen.
+const themeToggle = $('.theme-toggle');
+function setTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  themeToggle.innerHTML = `화면: ${theme === 'dark' ? '다크' : '라이트'} <span aria-hidden="true">◐</span>`;
+  themeToggle.setAttribute('aria-label', `${theme === 'dark' ? '밝은' : '어두운'} 테마로 전환`);
+  $('meta[name="theme-color"]').content = theme === 'dark' ? '#08090a' : '#f8f8f7';
+}
+try { const saved = localStorage.getItem('aiarc-landing-theme'); if (saved === 'light' || saved === 'dark') setTheme(saved); } catch { /* Storage may be disabled; the page remains usable. */ }
+themeToggle.addEventListener('click', () => {
+  const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  setTheme(theme);
+  try { localStorage.setItem('aiarc-landing-theme', theme); } catch {}
+});
+$$('.brand[href="#"]').forEach((brand) => brand.addEventListener('click', (event) => {
+  event.preventDefault();
+  window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+}));
