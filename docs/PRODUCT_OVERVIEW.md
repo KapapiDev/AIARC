@@ -4,33 +4,16 @@ AIARC는 **준공 단계의 반복적인 문서 정리·누락 확인·보완 �
 
 현재 제품은 준공 문서 자동화이고, 다음 제품 단계는 **AI Project Workspace**입니다. 그 중심에는 프로젝트에서 **지금 무엇이 유효하고, 무엇이 바뀌었고, 무엇이 미결인지** 이해하는 `Project State`가 있습니다.
 
-Project State는 최종 제품이 아니라, AIARC가 프로젝트의 맥락을 이해하고 다음 업무로 이어가기 위한 **핵심 능력**입니다. 사업적으로는 한 사람의 업무에서 시작해 프로젝트 참여자와 기업 사이의 반복업무를 연결하는 **건설 AI 업무 인프라**로 확장하는 것을 지향합니다.
+Project State는 최종 제품이나 독립 Phase가 아니라, AIARC가 프로젝트의 맥락을 이해하고 다음 업무로 이어가기 위한 **핵심 능력**입니다. 사업적으로는 한 사람의 업무에서 시작해 프로젝트 참여자와 기업 사이의 반복업무를 연결하는 **건설 AI 업무 인프라**로 확장하는 것을 지향합니다.
 
 장기 North Star는 더 넓은 건축·건설 지식업무를 수행하는 **Architecture AI**입니다.
 
 ```text
-현재 · 진입점
-준공 문서 자동화
-
-↓
-
-다음 제품
-AI Project Workspace
-
-↓
-
-핵심 능력
-Project State
-
-↓
-
-확장
-건설 AI 업무 인프라
-
-↓
-
-장기 North Star
-Architecture AI
+진입점        준공 문서 자동화
+제품          AI Project Workspace
+핵심 능력     Project State
+사업 확장     건설 AI 업무 인프라
+장기 North Star  Architecture AI
 ```
 
 ## 문제
@@ -87,7 +70,7 @@ AIARC는 이 지점에서 먼저 다음 능력을 검증합니다.
                 ↓
 문서 자동 정리와 관계 파악
                 ↓
-Project State
+Project State를 지속적으로 구축
 현재 상태 · 변경 · 미결사항 · 근거
                 ↓
 Project AI
@@ -135,7 +118,7 @@ AIARC는 HWP, PDF, Excel, 폴더, 이메일, 전화와 기존 외부 시스템�
 
 ## 왜 Project State인가
 
-Project State는 사용자가 별도 시스템으로 학습해야 하는 제품명이 아니라, AI Project Workspace가 프로젝트를 이해하기 위해 필요한 핵심 능력입니다.
+Project State는 사용자가 별도 시스템으로 학습해야 하는 제품명이나 다음 단계의 기능 묶음이 아니라, AI Project Workspace가 프로젝트를 이해하기 위해 계속 구축하고 활용하는 핵심 능력입니다.
 
 건축 프로젝트의 실제 상태는 파일 하나에 들어 있지 않습니다.
 
@@ -237,7 +220,7 @@ AIARC의 초기 고객은 건축·건설 프로젝트에서 문서를 직접 취
 
 - AI Project Workspace
 - 공사 중 자료 누적
-- Project State
+- Project State의 지속적 구축과 활용
 - 프로젝트에 대한 검색·질문·설명
 - 변화와 근거의 연결
 - 준공 시 재취합·재정리 감소
@@ -252,9 +235,12 @@ AIARC는 제품·기술 확장과 사업·사용범위 확장을 함께 봅니�
 제품 · 기술
 준공 문서 자동화
 → AI Project Workspace
-→ Project State
 → Project Intelligence
 → Architecture / Construction Agent
+
+핵심 능력
+Project State
+└ 프로젝트의 현재 상태 · 변경 · 미결사항 · 근거를 지속적으로 구축하고 활용
 
 사업 · 사용 범위
 한 사람의 업무
