@@ -55,7 +55,7 @@ $$('[data-case]').forEach(button => button.addEventListener('click', () => {
   image.alt = confirmed ? '수정본과 사용자 확인을 거쳐 단열재의 확인 상태와 이력이 갱신된 제품 방향 시연' : '단열재 제품명 불일치의 현재 상태, 변경 이력과 원문 근거를 연결한 제품 방향 시연';
   const preview = $('.state-case-image');
   preview.dataset.image = button.dataset.case;
-  preview.dataset.imageTitle = confirmed ? '사용자 확인 후 갱신된 Project State' : '단열재의 현재 상태와 변경 이력';
+  preview.dataset.imageTitle = confirmed ? '사용자 확인 후 갱신된 문서 상태' : '단열재의 현재 상태와 변경 이력';
   animateImage(image);
 }));
 

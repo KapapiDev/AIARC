@@ -53,7 +53,7 @@ AIARC의 각 개념은 서로 다른 역할을 가집니다.
 
 <p align="center">
   <a href="https://aiarc.kr/demo/">
-    <img src="./landing/assets/workspace.png" width="1100" alt="문서와 원문 근거를 한 작업공간에서 확인하는 AIARC 프로토타입" />
+    <img src="./landing/assets/workspace-document.png" width="1100" alt="문서와 원문 근거를 한 작업공간에서 확인하는 AIARC 프로토타입" />
   </a>
 </p>
 <p align="center"><sub>문서와 근거가 연결되는 AIARC 작업공간 · 이미지를 누르면 Live Demo로 이동합니다.</sub></p>
