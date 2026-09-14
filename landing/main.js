@@ -33,16 +33,16 @@ $$('[data-evidence]').forEach(button => button.addEventListener('click', () => {
 
 // Public illustrative story: these are prepared examples, not project analysis results.
 const stateStory = {
-  original: { moment: '07.03 당시 상태', value: 'A', description: '원도면 A의 위치가 기준인 상태', reason: '아직 변경지시 없음', date: '변경 전', evidence: '원도면 A', next: '이후 변경지시와 수정도면이 들어오면 함께 확인' },
-  change: { moment: '07.12 당시 상태', value: '변경 중', description: '현장 변경지시가 도착한 상태', reason: '현장 변경지시', date: '7월 12일', evidence: '원도면 A · 변경지시 기록', next: '다음 확인 · 변경 내용을 반영한 수정도면' },
-  revision: { moment: '07.13 당시 상태', value: 'B 후보', description: '변경 내용을 담은 수정도면 B 수신', reason: '현장 변경지시', date: '7월 12일', evidence: '원도면 A · 변경지시 · 수정도면 B', next: '다음 확인 · 관련 확인 기록과 현장 반영 여부' },
-  record: { moment: '07.14 당시 상태', value: 'B', description: '회의록과 메일에서 변경 내용을 확인', reason: '현장 변경지시', date: '7월 12일', evidence: '원도면 A · 수정도면 B · 회의록 · 메일', next: '다음 확인 · 실제 시공에 변경 내용이 반영됐는지' },
-  built: { moment: '현재 상태', value: 'B', description: '수정도면 B의 위치로 시공된 상태', reason: '현장 변경지시', date: '7월 12일', evidence: '원도면 A · 수정도면 B · 회의록 · 메일 · 현장사진', next: '다음 확인 · 변경 내용의 최종 반영 여부' }
+  original: { moment: '07.03 당시 상태', value: 'A', description: '원도면 A의 위치가 기준인 상태', reason: '아직 변경지시 없음', date: '변경 전', evidence: '원도면 A' },
+  change: { moment: '07.12 당시 상태', value: '변경 중', description: '현장 변경지시가 도착한 상태', reason: '현장 변경지시', date: '7월 12일', evidence: '원도면 A · 변경지시 기록' },
+  revision: { moment: '07.13 당시 상태', value: 'B 후보', description: '변경 내용을 담은 수정도면 B 수신', reason: '현장 변경지시', date: '7월 12일', evidence: '원도면 A · 변경지시 · 수정도면 B' },
+  record: { moment: '07.14 당시 상태', value: 'B', description: '회의록과 메일에서 변경 내용을 확인', reason: '현장 변경지시', date: '7월 12일', evidence: '원도면 A · 수정도면 B · 회의록 · 메일' },
+  built: { moment: '현재 상태', value: 'B', description: '수정도면 B의 위치로 시공된 상태', reason: '현장 변경지시', date: '7월 12일', evidence: '원도면 A · 수정도면 B · 회의록 · 메일 · 현장사진' }
 };
 function selectState(key) {
   const state = stateStory[key];
   if (!state) return;
-  for (const field of ['moment', 'value', 'description', 'reason', 'date', 'evidence', 'next']) $('#state-' + field).textContent = state[field];
+  for (const field of ['moment', 'value', 'description', 'reason', 'date', 'evidence']) $('#state-' + field).textContent = state[field];
   $$('[data-state]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.state === key)));
 }
 $$('[data-state]').forEach(button => button.addEventListener('click', () => selectState(button.dataset.state)));
