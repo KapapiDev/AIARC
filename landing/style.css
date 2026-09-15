@@ -149,12 +149,15 @@ button.desk-item:focus-visible{background:rgb(255 255 255 / .16)}
 .back-to-top[hidden]{display:none}
 .back-to-top:hover{color:var(--text);border-color:var(--figure)}
 
-/* Product chapters on desktop: the app frame sits inside the section with room around it
-   instead of filling the content width. Narrower screens keep their existing sizing. */
+/* Product showcase on desktop: the message on the left, the real app on the right, as one scene.
+   The copy sits a little above the frame's centre (rows 1fr : 1.4fr). Narrower screens keep the stacked layout. */
 @media(min-width:1280px){
-  .chapter{padding-block:80px}
-  .product-shot{width:min(1240px,88%);margin:48px auto 0}
-  .chapter .stage-foot{width:min(1240px,88%);margin-inline:auto}
-  /* The heading and lead start on the frame's left edge, keeping their own widths. */
-  .chapter h2,.chapter .lead{margin-left:calc((100% - min(1240px,88%)) / 2)}
+  .chapter{display:grid;grid-template-columns:minmax(300px,3fr) minmax(0,7fr);grid-template-rows:1fr auto auto 1.4fr;column-gap:clamp(48px,4.5vw,88px);padding-block:120px;background:radial-gradient(58% 62% at 70% 50%,rgb(255 255 255 / .028),transparent 72%)}
+  .chapter h2{grid-column:1;grid-row:2}
+  .chapter .lead{grid-column:1;grid-row:3;text-wrap:balance}
+  .chapter .product-shot{grid-column:2;grid-row:1 / span 4;margin:0;box-shadow:0 40px 90px -36px rgb(0 0 0 / .8),0 0 0 1px rgb(255 255 255 / .03)}
+  .chapter .stage-foot{grid-column:2;grid-row:5}
+  /* Where the page has side room, the frame reaches a little into the right gutter, keeping 48px or more from the edge. */
+  .chapter .product-shot,.chapter .stage-foot{margin-right:calc(max(0px,(100vw - 1296px) / 2 - 48px) * -1)}
 }
+@media(min-width:1600px){.chapter .product-shot,.chapter .stage-foot{margin-right:calc(max(0px,min((100vw - 1424px) / 4,(100vw - 1424px) / 2 - 64px)) * -1)}}
