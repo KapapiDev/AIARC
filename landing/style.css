@@ -32,7 +32,7 @@ p{word-break:keep-all;text-wrap:pretty}
 
 /* Hero: identity, one invitation, and the product right under it. */
 .hero{padding-top:48px;padding-bottom:96px}
-.hero h1{font-size:clamp(40px,4.2vw,72px);line-height:1.15}
+.hero h1{font-size:clamp(36px,3.2vw,48px);line-height:1.2}
 .hero-row{display:flex;align-items:flex-end;justify-content:space-between;gap:36px;margin-top:24px}
 .hero-row p{font-size:18px;line-height:1.625;color:var(--soft);max-width:640px}
 
@@ -125,7 +125,7 @@ button.desk-item:focus-visible{background:rgb(255 255 255 / .16)}
   .split{grid-template-columns:1fr;gap:40px}.expansion{grid-template-columns:repeat(3,minmax(0,1fr))}.expansion li:nth-child(n+4){border-top:1px solid var(--line);padding-bottom:28px}}
 @media(max-width:760px){
   html{scroll-padding-top:70px}.wrap{padding-inline:20px}.header{height:58px}.brand{font-size:20px}.brand img{width:23px;height:23px}.nav-links{gap:20px;font-size:13px}
-  .hero{padding-top:32px;padding-bottom:72px}.hero h1{font-size:clamp(40px,12.3vw,48px);line-height:1.15;letter-spacing:-.035em}.hero h1 br,.hero-row p br{display:none}
+  .hero{padding-top:32px;padding-bottom:72px}.hero h1{font-size:30px;line-height:1.2;letter-spacing:-.035em}.hero h1 br,.hero-row p br{display:none}
   .hero-row{flex-direction:column;align-items:stretch;gap:24px}.hero-row p{font-size:18px}
   .stage{margin-top:24px;margin-inline:auto;padding:10px 12px 14px;border-radius:10px}.desk-item{width:102px;padding:6px 2px;font-size:11px}.desk-icon{width:40px;height:34px}
   .stage-foot{flex-direction:column;gap:8px;font-size:11px}
@@ -158,12 +158,20 @@ button.desk-item:focus-visible{background:rgb(255 255 255 / .16)}
   .showcase.is-reversed .showcase-copy{grid-column:2;grid-row:1}
   .showcase.is-reversed .showcase-visual{grid-column:1;grid-row:1}
   .hero.showcase,.chapter.showcase{width:90%;max-width:none;padding-inline:0}
-  .hero .showcase-copy,.chapter .showcase-copy{padding:0 clamp(24px,2.5vw,72px) var(--lift)}
+  .hero .showcase-copy,.chapter .showcase-copy{padding:0 clamp(24px,calc(12.5vw - 144px),96px) var(--lift)}
 
-  .hero.showcase{grid-template-columns:minmax(0,38fr) minmax(0,62fr);padding-block:64px}
-  .hero .showcase-copy{padding-right:clamp(16px,2vw,40px)}
-  .hero-row{flex-direction:column;align-items:flex-start;gap:40px;margin-top:24px}
-  .hero .stage{margin-top:0;padding:16px}
+  /* Hero stage, measured on altitude.so's Sherpa block: the stage is 2/3 of the block and 80% of the viewport high,
+     16px corners; the window sits 9.5% from the left and 6% from the top at 61% of the stage width, so the wallpaper
+     stays in view around it. Copy is centred on the stage (--lift offsets the note under it). */
+  .hero.showcase{--lift:38px;padding-block:96px 64px}
+  .hero-row{flex-direction:column;align-items:flex-start;gap:24px;margin-top:24px}
+  .hero .stage{display:block;height:80vh;min-height:520px;margin-top:0;padding:0;border-radius:16px}
+  .hero .window{position:absolute;left:9.5%;top:6%;width:61%;max-width:none}
+  .hero .window-view{aspect-ratio:1280/1012}
+  .hero .window-view iframe{height:1012px}
+  .hero .desktop{position:absolute;right:6%;top:9%;display:grid}
+  .hero .desktop .desk-item{display:grid;justify-items:center;gap:6px;width:112px;padding:8px 4px;text-align:center}
+  .hero .desktop .desk-icon{width:48px;height:40px}
 
   .chapter.showcase{padding-block:64px}
   .chapter .product-shot{margin-top:0;box-shadow:0 40px 90px -36px rgb(0 0 0 / .8)}
