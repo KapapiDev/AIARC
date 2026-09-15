@@ -14,7 +14,7 @@ h1,h2,p,figure,ol{margin:0}
 h1,h2{font-weight:560;letter-spacing:-.045em;text-wrap:balance;word-break:keep-all}
 h2 span{color:var(--muted)}
 p{word-break:keep-all;text-wrap:pretty}
-.wrap{max-width:1376px;margin-inline:auto;padding-inline:40px}
+.wrap{max-width:1360px;margin-inline:auto;padding-inline:40px}
 .skip{position:fixed;left:16px;top:-100px;background:var(--button);color:var(--button-text);padding:12px;z-index:11}.skip:focus{top:12px}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
@@ -117,10 +117,10 @@ button.desk-item:focus-visible{background:rgb(255 255 255 / .16)}
   .stage{margin-top:20px;padding:16px}
   .window{max-width:none}
 }
-@media(min-width:1600px){.wrap{max-width:1536px;padding-inline:56px}}
-/* Desktop items move to a row once the window needs the full width. */
+@media(min-width:1600px){.wrap{max-width:1392px;padding-inline:56px}}
+/* Desktop items sit in a row above the window; the stage is a column of the hero on desktop and full width below it. */
 @media(min-width:1024px) and (max-width:1279px){.product-shot{margin-inline:-24px}}
-@media(max-width:1279px){.stage{grid-template-columns:1fr;gap:16px;padding:16px 24px 24px}.desktop{display:flex;justify-items:start}.desktop .desk-item{display:flex;align-items:center;gap:10px;width:auto;max-width:260px;text-align:left;padding:4px}.desktop .desk-icon{flex:none;width:36px;height:30px}.window{--chrome:120px}}
+.stage{grid-template-columns:1fr;gap:16px;padding:16px 24px 24px}.desktop{display:flex;justify-items:start}.desktop .desk-item{display:flex;align-items:center;gap:10px;width:auto;max-width:260px;text-align:left;padding:4px}.desktop .desk-icon{flex:none;width:36px;height:30px}.window{--chrome:120px}
 /* Narrow: the demo runs at its own mobile size inside a narrow window. */
 @media(max-width:939px){.stage{max-width:454px;margin-inline:auto}.window{max-width:390px}.window-view{aspect-ratio:390/720}.window-view iframe{width:390px;height:720px}
   .split{grid-template-columns:1fr;gap:40px}.expansion{grid-template-columns:repeat(3,minmax(0,1fr))}.expansion li:nth-child(n+4){border-top:1px solid var(--line);padding-bottom:28px}}
@@ -149,12 +149,25 @@ button.desk-item:focus-visible{background:rgb(255 255 255 / .16)}
 .back-to-top[hidden]{display:none}
 .back-to-top:hover{color:var(--text);border-color:var(--figure)}
 
-/* Product chapters on desktop: the app frame sits inside the section with room around it
-   instead of filling the content width. Narrower screens keep their existing sizing. */
+/* Product showcase (desktop): copy and a real product visual share one row, alternating sides down the page.
+   The markup keeps copy before visual, so every narrower (stacked) layout reads the copy first.
+   --lift raises the copy a little above the visual's centre; product visuals may reach into the page gutter (--bleed). */
 @media(min-width:1280px){
-  .chapter{padding-block:80px}
-  .product-shot{width:min(1240px,88%);margin:48px auto 0}
-  .chapter .stage-foot{width:min(1240px,88%);margin-inline:auto}
-  /* The heading and lead start on the frame's left edge, keeping their own widths. */
-  .chapter h2,.chapter .lead{margin-left:calc((100% - min(1240px,88%)) / 2)}
+  .showcase{--copy:36fr;--visual:64fr;--lift:56px;--bleed:min(200px,max(0px,(100vw - 1280px) / 2 - 32px));display:grid;grid-template-columns:minmax(0,var(--copy)) minmax(0,var(--visual));column-gap:clamp(48px,4.5vw,80px);align-items:center}
+  .showcase.is-reversed{grid-template-columns:minmax(0,var(--visual)) minmax(0,var(--copy))}
+  .showcase.is-reversed .showcase-copy{grid-column:2;grid-row:1}
+  .showcase.is-reversed .showcase-visual{grid-column:1;grid-row:1}
+  .showcase-copy{padding-bottom:var(--lift)}
+  .hero .showcase-visual,.chapter .showcase-visual{margin-right:calc(var(--bleed) * -1)}
+  .chapter.is-reversed .showcase-visual{margin-right:0;margin-left:calc(var(--bleed) * -1)}
+
+  .hero.showcase{--lift:72px;padding-top:64px;padding-bottom:120px}
+  .hero-row{flex-direction:column;align-items:flex-start;gap:28px;margin-top:24px}
+  .hero .stage{margin-top:0;padding:16px}
+
+  .chapter.showcase{padding-block:104px}
+  .chapter .product-shot{margin-top:0;box-shadow:0 40px 90px -36px rgb(0 0 0 / .8)}
+  .chapter.is-reversed{--lift:28px}
+  #email-workflow{--copy:38fr;--visual:62fr;--lift:40px}
+  .split.showcase{--copy:40fr;--visual:60fr;--lift:24px}
 }
