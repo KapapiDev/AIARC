@@ -278,3 +278,30 @@ $$('.brand[href="#"]').forEach((brand) => brand.addEventListener('click', (event
   event.preventDefault();
   window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
 }));
+
+// Keep the scroll utility out of the way of product imagery, copy and actions.
+const backToTop = $('.back-to-top');
+const backToTopObstacles = $$('main h1, main h2, main p, main picture, main ol, main .diagram, main button, main a, main summary, footer a, footer .footer-bottom');
+function updateBackToTop() {
+  const right = Math.max(16, parseFloat(getComputedStyle(backToTop).right) || 16);
+  const bottom = Math.max(16, parseFloat(getComputedStyle(backToTop).bottom) || 16);
+  const x = document.documentElement.clientWidth - right - 44, y = innerHeight - bottom - 44;
+  const blocked = backToTopObstacles.some(element => {
+    const r = element.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && r.left < x + 48 && r.right > x - 4 && r.top < y + 48 && r.bottom > y - 4;
+  });
+  backToTop.hidden = scrollY < 600 || blocked;
+}
+let backToTopPending = false;
+function scheduleBackToTop() {
+  if (backToTopPending) return;
+  backToTopPending = true;
+  requestAnimationFrame(() => { backToTopPending = false; updateBackToTop(); });
+}
+addEventListener('scroll', scheduleBackToTop, { passive: true });
+addEventListener('resize', scheduleBackToTop);
+addEventListener('load', scheduleBackToTop);
+backToTop.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+});
+updateBackToTop();
