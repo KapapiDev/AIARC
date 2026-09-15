@@ -153,6 +153,8 @@ button.desk-item:focus-visible{background:rgb(255 255 255 / .16)}
    instead of filling the content width. Narrower screens keep their existing sizing. */
 @media(min-width:1280px){
   .chapter{padding-block:80px}
-  .product-shot{width:min(1240px,88%);margin:56px auto 0}
+  .product-shot{width:min(1240px,88%);margin:48px auto 0}
   .chapter .stage-foot{width:min(1240px,88%);margin-inline:auto}
+  /* The heading and lead start on the frame's left edge, keeping their own widths. */
+  .chapter h2,.chapter .lead{margin-left:calc((100% - min(1240px,88%)) / 2)}
 }
