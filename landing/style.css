@@ -148,3 +148,13 @@ button.desk-item:focus-visible{background:rgb(255 255 255 / .16)}
 .back-to-top{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));z-index:9;width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:var(--surface);color:var(--muted)}
 .back-to-top[hidden]{display:none}
 .back-to-top:hover{color:var(--text);border-color:var(--figure)}
+
+/* Product chapters on desktop: the app frame sits inside the section with room around it
+   instead of filling the content width. Narrower screens keep their existing sizing. */
+@media(min-width:1280px){
+  .chapter{padding-block:80px}
+  .product-shot{width:min(1240px,88%);margin:48px auto 0}
+  .chapter .stage-foot{width:min(1240px,88%);margin-inline:auto}
+  /* The heading and lead start on the frame's left edge, keeping their own widths. */
+  .chapter h2,.chapter .lead{margin-left:calc((100% - min(1240px,88%)) / 2)}
+}
