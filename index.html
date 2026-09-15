@@ -37,7 +37,7 @@
     <section class="hero wrap" id="product">
       <h1>건축 프로젝트를 이해하는<br> AI 업무공간.</h1>
       <div class="hero-row">
-        <p>문서·도면·메일·사진과 변경기록을 연결해,<br> 지금 무엇이 유효하고 왜 바뀌었는지 이해하는 업무공간을 만듭니다.</p>
+        <p>흩어진 준공 서류를 정리하고, 확인할 항목과 원문 근거를 먼저 보여줍니다.<br> 문서·도면·메일·사진의 변화를 연결해 프로젝트의 현재 상태를 이해합니다.</p>
         <button class="button" type="button" data-try>AIARC 체험하기</button>
       </div>
 
@@ -71,24 +71,41 @@
       <p class="sr-only" id="stage-status" aria-live="polite"></p>
     </section>
 
+    <section class="section problem wrap" id="problem">
+      <h2>공사가 끝나도,<br> <span>서류는 끝나지 않습니다.</span></h2>
+      <p class="lead">준공 단계에는 여러 곳에서 받은 자료를 모으고, 빠진 것과 맞지 않는 것을 찾아 다시 요청하는 일이 반복됩니다.</p>
+      <ol class="workflow" aria-label="반복되는 준공 문서 업무와 AIARC의 대응">
+        <li><a href="#organize">자료 취합·정리</a></li>
+        <li><a href="#evidence">누락·불일치 확인</a></li>
+        <li><a href="#email-workflow">보완 요청·회신</a></li>
+        <li><a href="#revision">수정본 반영</a></li>
+      </ol>
+    </section>
+
     <section class="section chapter wrap" id="organize">
       <h2>자료를 넣으면,<br> <span>확인할 것만 남깁니다.</span></h2>
       <p class="lead">모든 파일을 다시 열어보는 대신, 정리된 결과와 확인할 항목부터 봅니다.</p>
-      <picture class="product-shot">
-        <source media="(max-width: 760px)" srcset="./landing/assets/chapter-organized-mobile.webp" width="780" height="1280">
-        <source media="(max-width: 1023px)" srcset="./landing/assets/chapter-organized-tablet.webp" width="1800" height="1280">
-        <img src="./landing/assets/chapter-organized-desktop.webp" width="2560" height="1440" loading="lazy" decoding="async" alt="샘플 문서 45개가 자재·품질·감리·공사·준공 문서함으로 정리되고, 확인 필요 2건과 누락 3건이 남은 AIARC 작업공간 전체 화면">
-      </picture>
+      <figure class="product-shot">
+        <picture>
+          <source media="(max-width: 760px)" srcset="./landing/assets/chapter-organized-mobile.webp" width="780" height="1280">
+          <source media="(max-width: 1023px)" srcset="./landing/assets/chapter-organized-tablet.webp" width="1800" height="1280">
+          <img src="./landing/assets/chapter-organized-desktop.webp" width="2560" height="1440" loading="lazy" decoding="async" alt="샘플 문서 45개가 자재·품질·감리·공사·준공 문서함으로 정리되고, 확인 필요 2건과 누락 3건이 남은 AIARC 작업공간 전체 화면">
+        </picture>
+        <span class="focus" style="left:0.94%;top:68.08%;width:17.73%;height:14.72%" aria-hidden="true"></span>
+      </figure>
     </section>
 
     <section class="section chapter wrap" id="evidence">
       <h2>문제가 있으면,<br> <span>원문에서 바로 확인합니다.</span></h2>
-      <p class="lead">무엇이 다른지와 확인해야 할 근거를 같은 작업공간에서 보여줍니다.</p>
-      <picture class="product-shot">
-        <source media="(max-width: 760px)" srcset="./landing/assets/chapter-evidence-mobile.webp" width="780" height="1280">
-        <source media="(max-width: 1023px)" srcset="./landing/assets/chapter-evidence-tablet.webp" width="1800" height="1280">
-        <img src="./landing/assets/chapter-evidence-desktop.webp" width="2560" height="1440" loading="lazy" decoding="async" alt="시험성적서의 제품명 ABC-120이 원문에 표시되고, 자재승인원 ABC-100과 다르다는 대화와 보완 요청 버튼이 함께 보이는 AIARC 작업공간 전체 화면">
-      </picture>
+      <p class="lead">승인된 <span class="nowrap">자재(ABC-100)와</span> 시험성적서의 <span class="nowrap">자재(ABC-120)가</span> 다르면, 원문 근거와 다음 할 일을 함께 보여줍니다.</p>
+      <figure class="product-shot">
+        <picture>
+          <source media="(max-width: 760px)" srcset="./landing/assets/chapter-evidence-mobile.webp" width="780" height="1280">
+          <source media="(max-width: 1023px)" srcset="./landing/assets/chapter-evidence-tablet.webp" width="1800" height="1280">
+          <img src="./landing/assets/chapter-evidence-desktop.webp" width="2560" height="1440" loading="lazy" decoding="async" alt="시험성적서의 제품명 ABC-120이 원문에 표시되고, 자재승인원 ABC-100과 다르다는 대화와 보완 요청 버튼이 함께 보이는 AIARC 작업공간 전체 화면">
+        </picture>
+        <span class="focus" style="left:19.69%;top:1%;width:52.19%;height:10.8%" aria-hidden="true"></span>
+      </figure>
     </section>
 
     <section class="section chapter wrap" id="email-workflow">
@@ -105,11 +122,14 @@
     <section class="section chapter wrap" id="revision">
       <h2>수정본이 도착하면,<br> <span>프로젝트 상태도 바뀝니다.</span></h2>
       <p class="lead">이전 원문과 변경 이력은 그대로 보존합니다.</p>
-      <picture class="product-shot">
-        <source media="(max-width: 760px)" srcset="./landing/assets/chapter-revision-mobile.webp" width="780" height="1280">
-        <source media="(max-width: 1023px)" srcset="./landing/assets/chapter-revision-tablet.webp" width="1800" height="1280">
-        <img src="./landing/assets/chapter-revision-desktop.webp" width="2560" height="1440" loading="lazy" decoding="async" alt="시험성적서 수정본의 제품명 ABC-100이 자재승인원과 일치해 확인 완료로 바뀌고, 이전본과 변경 이력 6건이 함께 남은 AIARC 작업공간 전체 화면">
-      </picture>
+      <figure class="product-shot">
+        <picture>
+          <source media="(max-width: 760px)" srcset="./landing/assets/chapter-revision-mobile.webp" width="780" height="1280">
+          <source media="(max-width: 1023px)" srcset="./landing/assets/chapter-revision-tablet.webp" width="1800" height="1280">
+          <img src="./landing/assets/chapter-revision-desktop.webp" width="2560" height="1440" loading="lazy" decoding="async" alt="시험성적서 수정본의 제품명 ABC-100이 자재승인원과 일치해 확인 완료로 바뀌고, 이전본과 변경 이력 6건이 함께 남은 AIARC 작업공간 전체 화면">
+        </picture>
+        <span class="focus" style="left:19.69%;top:7.6%;width:52.19%;height:44.8%" aria-hidden="true"></span>
+      </figure>
     </section>
 
     <section class="section split wrap" id="project-state">
@@ -134,13 +154,15 @@
 
     <section class="section wrap" id="expansion">
       <h2 class="statement">준공 자동화에서 시작해,<br> <span>건설 AI 업무 인프라로 확장합니다.</span></h2>
-      <ol class="progression" aria-label="제품 단계">
+      <p class="row-label" id="progression-label">제품 단계</p>
+      <ol class="progression" aria-labelledby="progression-label">
         <li class="now">준공 문서 자동화<small>현재</small></li>
         <li>AI Project Workspace</li>
         <li>Project Intelligence</li>
         <li>Architecture / Construction Agent</li>
       </ol>
-      <ol class="expansion" aria-label="업무 범위의 확장">
+      <p class="row-label" id="expansion-label">연결하는 업무 범위</p>
+      <ol class="expansion" aria-labelledby="expansion-label">
         <li><!-- diagram:expansion-0 --><svg class="diagram" viewBox="-188.1 -108 376.2 211" aria-hidden="true" focusable="false"><path class="ground dashed" d="M0 -50L86.6 0L0 50L-86.6 0Z"/><g class="box "><path class="face side" d="M34.6 0L0 20L0 -20L34.6 -40Z"/><path class="face front" d="M-34.6 0L0 20L0 -20L-34.6 -40Z"/><path class="face top" d="M0 -60L34.6 -40L0 -20L-34.6 -40Z"/></g></svg>한 사람</li>
         <li><!-- diagram:expansion-1 --><svg class="diagram" viewBox="-188.1 -108 376.2 211" aria-hidden="true" focusable="false"><path class="ground" d="M0 -75L129.9 0L0 75L-129.9 0Z"/><g class="box building"><path class="face side" d="M52 0L0 30L0 -40L52 -70Z"/><path class="face front" d="M-52 0L0 30L0 -40L-52 -70Z"/><path class="face top" d="M0 -100L52 -70L0 -40L-52 -70Z"/></g></svg>한 프로젝트</li>
         <li><!-- diagram:expansion-2 --><svg class="diagram" viewBox="-188.1 -108 376.2 211" aria-hidden="true" focusable="false"><path class="ground" d="M0 -75L129.9 0L0 75L-129.9 0Z"/><path class="link" d="M-77.9 -25L0 -40"/><path class="link" d="M77.9 -25L0 -40"/><path class="link" d="M39.8 35L0 -40"/><path class="link" d="M-39.8 35L0 -40"/><g class="box building"><path class="face side" d="M52 0L0 30L0 -40L52 -70Z"/><path class="face front" d="M-52 0L0 30L0 -40L-52 -70Z"/><path class="face top" d="M0 -100L52 -70L0 -40L-52 -70Z"/></g><g class="box "><path class="face side" d="M-64.1 -17L-77.9 -9L-77.9 -25L-64.1 -33Z"/><path class="face front" d="M-91.8 -17L-77.9 -9L-77.9 -25L-91.8 -33Z"/><path class="face top" d="M-77.9 -41L-64.1 -33L-77.9 -25L-91.8 -33Z"/></g><g class="box "><path class="face side" d="M91.8 -17L77.9 -9L77.9 -25L91.8 -33Z"/><path class="face front" d="M64.1 -17L77.9 -9L77.9 -25L64.1 -33Z"/><path class="face top" d="M77.9 -41L91.8 -33L77.9 -25L64.1 -33Z"/></g><g class="box "><path class="face side" d="M53.7 43L39.8 51L39.8 35L53.7 27Z"/><path class="face front" d="M26 43L39.8 51L39.8 35L26 27Z"/><path class="face top" d="M39.8 19L53.7 27L39.8 35L26 27Z"/></g><g class="box "><path class="face side" d="M-26 43L-39.8 51L-39.8 35L-26 27Z"/><path class="face front" d="M-53.7 43L-39.8 51L-39.8 35L-53.7 27Z"/><path class="face top" d="M-39.8 19L-26 27L-39.8 35L-53.7 27Z"/></g></svg>프로젝트 참여자</li>
@@ -157,10 +179,11 @@
         <a class="button secondary" href="https://github.com/KapapiDev/AIARC/releases/download/v0.6.0-workspace-demo/AIARC-Workspace-Demo-Windows-x64-Portable.exe" download>Windows 시연 앱 다운로드</a>
         <small>Windows 10/11 · 64-bit · Portable · 설치 없이 실행</small>
       </div>
-      <details class="scope">
-        <summary>시연 범위</summary>
-        <p>문서 데모는 실제 서식을 보존하거나 재현한 PDF 미리보기와 가상 내용을 사용합니다. 파일 감지와 화면 조작, 문서 열기와 근거 이동은 실제로 동작합니다. 분석·요청·회신·상태 변화는 준비된 데모 데이터이며 실제 AI 판단이나 메일 송수신이 아닙니다. 원본 문서를 변경하지 않으며, 전문적·법적 최종 판단은 사람이 합니다.</p>
-      </details>
+      <dl class="scope" aria-label="시연 범위">
+        <div><dt>실제로 동작합니다</dt><dd>파일·폴더·ZIP 감지, 문서 열기와 원문 근거 이동, 화면 조작</dd></div>
+        <div><dt>샘플 데이터로 시연합니다</dt><dd>분류·누락 분석, 보완 요청·회신, 상태 변화</dd></div>
+      </dl>
+      <p class="scope-note">원본 문서는 변경하지 않으며, 전문적·법적 최종 판단은 사람이 합니다.</p>
     </section>
   </main>
 

@@ -66,10 +66,25 @@ button.desk-item:focus-visible{background:rgb(255 255 255 / .16)}
 .section{padding-block:112px}
 .section h2{font-size:34px;line-height:1.35}
 .lead{margin-top:18px;font-size:18px;line-height:1.7;letter-spacing:-.02em;color:var(--soft);max-width:560px}
+/* Problem: the repeated closeout work; each step jumps to the chapter that answers it. */
+.workflow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));list-style:none;padding:0;margin-top:48px;border-top:1px solid var(--line)}
+.workflow li+li{border-left:1px solid var(--line)}
+.workflow a{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:22px 20px 4px;font-size:17px;letter-spacing:-.02em;color:var(--soft)}
+.workflow li:first-child a{padding-left:0}
+.workflow a:after{content:'↓';font-size:14px;color:var(--figure);transition:transform .2s}
+.workflow a:hover{color:var(--text)}.workflow a:hover:after{color:var(--soft);transform:translateY(2px)}
+.nowrap{white-space:nowrap}
+.row-label{margin-top:44px;font-size:12px;color:var(--muted)}
+.row-label+.progression,.row-label+.expansion{margin-top:14px}
+
 /* Product chapters: the whole app frame (sidebar, work, conversation), shown near its native size. */
 .chapter{padding-block:64px}
 .product-shot{display:block;margin-top:44px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fafbfc}
 .product-shot img{width:100%}
+/* One quiet outline per shot marks where to look first; the product UI itself is untouched. */
+.product-shot{position:relative;margin-inline:0}.product-shot picture{display:block}
+.focus{position:absolute;box-sizing:content-box;margin:-6px;padding:6px;border:2px solid #e2a53f;border-radius:10px;box-shadow:0 0 0 6px rgb(226 165 63 / .14);pointer-events:none}
+@media(max-width:1023px){.focus{display:none}}
 
 .split{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:56px;align-items:center}
 .state-figure{margin:0}
@@ -102,9 +117,11 @@ button.desk-item:focus-visible{background:rgb(255 255 255 / .16)}
 .download h2{font-size:36px}
 .download-actions{display:grid;gap:12px;min-width:280px;text-align:center}
 .download-actions small{font-size:12px;color:var(--muted)}
-.scope{grid-column:1 / -1;max-width:860px;font-size:13px;color:var(--muted)}
-.scope summary{cursor:pointer;width:max-content}
-.scope p{margin-top:14px;line-height:1.9}
+.scope{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin:12px 0 0;border-top:1px solid var(--line)}
+.scope div{padding:22px 32px 0 0}
+.scope dt{font-size:13px;font-weight:560;color:var(--text)}
+.scope dd{margin:8px 0 0;font-size:14px;line-height:1.7;color:var(--soft)}
+.scope-note{grid-column:1 / -1;font-size:12px;color:var(--muted)}
 
 .footer{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px;padding-block:48px 40px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
 .footer-links{display:flex;flex-wrap:wrap;gap:24px}
@@ -131,11 +148,13 @@ button.desk-item:focus-visible{background:rgb(255 255 255 / .16)}
   .stage{margin-top:24px;margin-inline:auto;padding:10px 12px 14px;border-radius:10px}.desk-item{width:102px;padding:6px 2px;font-size:11px}.desk-icon{width:40px;height:34px}
   .stage-foot{flex-direction:column;gap:8px;font-size:11px}
   .section{padding-block:72px}.section h2,.download h2{font-size:27px}.section h2 br{display:none}.lead{font-size:16px}
-  .chapter{padding-block:56px}.chapter h2{font-size:25px}.chapter h2 br{display:inline}.product-shot{margin-top:28px;max-width:420px;margin-inline:auto}
+  .chapter{padding-block:56px}.chapter h2,.problem h2{font-size:25px}.chapter h2 br,.problem h2 br{display:inline}.product-shot{margin-top:28px;max-width:420px;margin-inline:auto}
   .diagram .label,.diagram .leader{display:none}.diagram-state{margin-inline:auto;max-width:360px}
   .state-legend{position:static;width:auto;height:auto;clip-path:none;display:grid;gap:8px;list-style:none;padding:0;margin-top:24px;font-size:13px;color:var(--soft)}
   .state-legend time{display:inline-block;width:52px;color:var(--muted);font-variant-numeric:tabular-nums}.state-legend .now{color:var(--text);font-weight:560}
   .statement{font-size:24px!important;line-height:1.5}
+  .workflow{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:32px}.workflow li:nth-child(3){border-left:0}.workflow li:nth-child(n+3){border-top:1px solid var(--line)}.workflow a{padding:18px 14px 18px;font-size:15px}.workflow li:nth-child(odd) a{padding-left:0}
+  .scope{grid-template-columns:1fr}.scope div{padding-right:0}
   .progression{flex-direction:column;gap:12px;margin-top:32px}.progression li+li:before{content:'↓';margin:0 8px 0 0}
   .expansion{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:44px}.expansion li{padding:24px 10px 24px;font-size:13px;border-top:1px solid var(--line)}.expansion li:nth-child(-n+2){border-top:0}
   .download{grid-template-columns:1fr}.download-actions{min-width:0}
