@@ -50,7 +50,8 @@ function load(fresh = false) {
 }
 const canvasOf = (doc) => $('#unified-canvas', doc);
 const isFresh = (doc) => canvasOf(doc)?.dataset.state === 'empty' && !$('.conversation-message', doc);
-const appButton = (doc, label, selector = 'button') => $$(selector, doc).find((button) => button.offsetParent && button.textContent.trim() === label);
+// The demo marks its actions with stable, non-visual hooks, so the script never depends on visible labels.
+const appAction = (doc, id) => $$(`[data-demo-action="${id}"]`, doc).find((button) => button.offsetParent);
 async function until(find, signal, timeout = 10000) {
   for (const end = Date.now() + timeout; Date.now() < end; await sleep(80, signal)) { const found = find(); if (found) return found; }
   throw new Error('The demo did not reach the expected state.');
@@ -140,26 +141,26 @@ async function choreography(doc, signal) {
   await sleep(380, signal);
   dragSignal(doc, 'dragleave');
   settle(true);
-  appButton(doc, '샘플로 시작').click();
+  appAction(doc, 'start-sample').click();
   await move(point(canvasOf(doc), 0.56, 0.6), 900, signal);
-  const organize = await until(() => appButton(doc, '정리안 반영', 'button.primary-action'), signal);
+  const organize = await until(() => appAction(doc, 'apply-plan'), signal);
   await sleep(700, signal);
   await move(point(organize), 760, signal);
   await press(signal);
   organize.click();
-  const review = await until(() => appButton(doc, '확인하기', 'button.primary-action'), signal);
+  const review = await until(() => appAction(doc, 'inspect'), signal);
   await sleep(1100, signal);
   await move(point(review), 700, signal);
   await press(signal);
   review.click();
-  const request = await until(() => $('.document-field[data-highlight=true]', doc) && appButton(doc, '보완 요청', 'button.primary-action'), signal);
+  const request = await until(() => $('.document-field[data-highlight=true]', doc) && appAction(doc, 'request-fix'), signal);
   await sleep(1200, signal);
   await move(point(request, 0.55, 0.85), 820, signal);
 }
 async function instant(doc, signal) {
-  appButton(doc, '샘플로 시작').click();
-  for (const label of ['정리안 반영', '확인하기']) (await until(() => appButton(doc, label, 'button.primary-action'), signal)).click();
-  await until(() => appButton(doc, '보완 요청', 'button.primary-action'), signal);
+  appAction(doc, 'start-sample').click();
+  for (const id of ['apply-plan', 'inspect']) (await until(() => appAction(doc, id), signal)).click();
+  await until(() => appAction(doc, 'request-fix'), signal);
 }
 function hideCursor(delay = 0) {
   const fade = cursor.animate([{ opacity: getComputedStyle(cursor).opacity }, { opacity: 0 }], { duration: 260, delay, fill: 'forwards' });
@@ -224,7 +225,7 @@ narrow.addEventListener('change', () => { takeOver(); fit(); });
 let drag;
 async function openSampleFolder() {
   const doc = await freshApp();
-  appButton(doc, '샘플로 시작')?.click();
+  appAction(doc, 'start-sample')?.click();
   stage.dataset.state = 'taken';
   replay.hidden = false;
 }
@@ -273,20 +274,6 @@ stage.addEventListener('drop', async (event) => {
   replay.hidden = false;
 });
 
-// Theme, unchanged from the previous landing: dark by default, remembered when chosen.
-const themeToggle = $('.theme-toggle');
-function setTheme(theme) {
-  document.documentElement.dataset.theme = theme;
-  themeToggle.innerHTML = `화면: ${theme === 'dark' ? '다크' : '라이트'} <span aria-hidden="true">◐</span>`;
-  themeToggle.setAttribute('aria-label', `${theme === 'dark' ? '밝은' : '어두운'} 테마로 전환`);
-  $('meta[name="theme-color"]').content = theme === 'dark' ? '#08090a' : '#f8f8f7';
-}
-try { const saved = localStorage.getItem('aiarc-landing-theme'); if (saved === 'light' || saved === 'dark') setTheme(saved); } catch { /* Storage may be disabled; the page remains usable. */ }
-themeToggle.addEventListener('click', () => {
-  const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-  setTheme(theme);
-  try { localStorage.setItem('aiarc-landing-theme', theme); } catch {}
-});
 $$('.brand[href="#"]').forEach((brand) => brand.addEventListener('click', (event) => {
   event.preventDefault();
   window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });

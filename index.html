@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko" data-theme="dark">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -79,12 +79,33 @@
       <p class="sr-only" id="stage-status" aria-live="polite"></p>
     </section>
 
-    <section class="section wrap" id="revision">
+    <section class="section chapter wrap" id="organize">
+      <h2>자료를 넣으면,<br> <span>확인할 것만 남깁니다.</span></h2>
+      <p class="lead">모든 파일을 다시 열어보는 대신, 정리된 결과와 확인할 항목부터 봅니다.</p>
+      <picture class="product-shot">
+        <source media="(max-width: 760px)" srcset="./landing/assets/chapter-organized-mobile.webp" width="780" height="1280">
+        <source media="(max-width: 1023px)" srcset="./landing/assets/chapter-organized-tablet.webp" width="1800" height="1280">
+        <img src="./landing/assets/chapter-organized-desktop.webp" width="2560" height="1440" loading="lazy" decoding="async" alt="샘플 문서 45개가 자재·품질·감리·공사·준공 문서함으로 정리되고, 확인 필요 2건과 누락 3건이 남은 AIARC 작업공간 전체 화면">
+      </picture>
+    </section>
+
+    <section class="section chapter wrap" id="evidence">
+      <h2>문제가 있으면,<br> <span>원문에서 바로 확인합니다.</span></h2>
+      <p class="lead">무엇이 다른지와 확인해야 할 근거를 같은 작업공간에서 보여줍니다.</p>
+      <picture class="product-shot">
+        <source media="(max-width: 760px)" srcset="./landing/assets/chapter-evidence-mobile.webp" width="780" height="1280">
+        <source media="(max-width: 1023px)" srcset="./landing/assets/chapter-evidence-tablet.webp" width="1800" height="1280">
+        <img src="./landing/assets/chapter-evidence-desktop.webp" width="2560" height="1440" loading="lazy" decoding="async" alt="시험성적서의 제품명 ABC-120이 원문에 표시되고, 자재승인원 ABC-100과 다르다는 대화와 보완 요청 버튼이 함께 보이는 AIARC 작업공간 전체 화면">
+      </picture>
+    </section>
+
+    <section class="section chapter wrap" id="revision">
       <h2>수정본이 도착하면,<br> <span>프로젝트 상태도 바뀝니다.</span></h2>
       <p class="lead">이전 원문과 변경 이력은 그대로 보존합니다.</p>
-      <picture class="moment">
-        <source media="(max-width: 760px)" srcset="./landing/assets/state-revision-narrow.webp" width="780" height="1200">
-        <img src="./landing/assets/state-revision.webp" width="2376" height="1484" loading="lazy" decoding="async" alt="시험성적서 수정본의 제품명 ABC-100이 자재승인원과 일치해 확인 완료로 바뀌고, 변경 이력 6건이 함께 남은 AIARC 화면">
+      <picture class="product-shot">
+        <source media="(max-width: 760px)" srcset="./landing/assets/chapter-revision-mobile.webp" width="780" height="1280">
+        <source media="(max-width: 1023px)" srcset="./landing/assets/chapter-revision-tablet.webp" width="1800" height="1280">
+        <img src="./landing/assets/chapter-revision-desktop.webp" width="2560" height="1440" loading="lazy" decoding="async" alt="시험성적서 수정본의 제품명 ABC-100이 자재승인원과 일치해 확인 완료로 바뀌고, 이전본과 변경 이력 6건이 함께 남은 AIARC 작업공간 전체 화면">
       </picture>
     </section>
 
@@ -111,7 +132,7 @@
     <section class="section wrap" id="expansion">
       <h2 class="statement">준공 자동화로 시작해 <span>프로젝트를 이해하는 AI 업무공간을 만들고, 사람과 기업 사이의 건설 업무를 연결하는 AI 업무 인프라로 확장합니다.</span></h2>
       <ol class="progression" aria-label="제품 단계">
-        <li class="now">준공 자동화<small>현재</small></li>
+        <li class="now">준공 문서 자동화<small>현재</small></li>
         <li>AI Project Workspace</li>
         <li>Project Intelligence</li>
         <li>Architecture / Construction Agent</li>
@@ -143,7 +164,7 @@
   <footer class="footer wrap">
     <a class="brand" href="#" aria-label="AIARC 홈"><img src="./landing/assets/symbol.svg" width="27" height="27" alt=""><span>AIARC</span></a>
     <div class="footer-links"><a href="https://github.com/KapapiDev/AIARC" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="mailto:hello@kapapi.dev">문의하기 ↗</a><a href="mailto:hello@kapapi.dev?subject=AIARC%20데모%20피드백">피드백 보내기 ↗</a></div>
-    <div class="footer-bottom"><span>© 2026 AIARC</span><button class="theme-toggle" type="button" aria-label="밝은 테마로 전환">화면: 다크 <span aria-hidden="true">◐</span></button></div>
+    <div class="footer-bottom"><span>© 2026 AIARC</span></div>
   </footer>
 </body>
 </html>
