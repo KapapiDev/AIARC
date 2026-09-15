@@ -34,13 +34,16 @@
   </header>
 
   <main id="main">
-    <section class="hero wrap" id="product">
+    <section class="hero showcase wrap" id="product">
+      <div class="showcase-copy">
       <h1>건축 프로젝트를 이해하는<br> AI 업무공간.</h1>
       <div class="hero-row">
         <p>문서·도면·메일·사진과 변경기록을 연결해,<br> 지금 무엇이 유효하고 왜 바뀌었는지 이해하는 업무공간을 만듭니다.</p>
         <button class="button" type="button" data-try>AIARC 체험하기</button>
       </div>
+      </div>
 
+      <div class="showcase-visual">
       <div class="stage" id="try" data-state="idle">
         <picture class="wallpaper">
           <source srcset="./landing/assets/wallpaper.webp" type="image/webp">
@@ -56,6 +59,7 @@
           <div class="window-bar">AIARC</div>
           <div class="window-view">
             <picture class="window-poster">
+              <source media="(min-width: 1280px)" srcset="./landing/assets/stage-showcase.webp" width="1280" height="1012">
               <source media="(max-width: 939px)" srcset="./landing/assets/stage-narrow.webp" width="390" height="720">
               <img src="./landing/assets/stage-wide.webp" width="1280" height="800" alt="파일을 기다리는 AIARC 작업공간 첫 화면" decoding="async">
             </picture>
@@ -68,56 +72,73 @@
         <p>파일 이름과 형식 감지는 실제로 동작합니다. 분류·누락 분석은 샘플 결과를 사용합니다.</p>
         <button class="text-link" type="button" data-replay hidden>다시 보기</button>
       </div>
+      </div>
       <p class="sr-only" id="stage-status" aria-live="polite"></p>
     </section>
 
-    <section class="section chapter wrap" id="organize">
+    <section class="section chapter showcase wrap" id="organize">
+      <div class="showcase-copy">
       <h2>자료를 넣으면,<br> <span>확인할 것만 남깁니다.</span></h2>
       <p class="lead">모든 파일을 다시 열어보는 대신, 정리된 결과와 확인할 항목부터 봅니다.</p>
+      </div>
+      <div class="showcase-visual">
       <picture class="product-shot">
         <source media="(max-width: 760px)" srcset="./landing/assets/chapter-organized-mobile.webp" width="780" height="1280">
         <source media="(max-width: 1023px)" srcset="./landing/assets/chapter-organized-tablet.webp" width="1800" height="1280">
         <img src="./landing/assets/chapter-organized-desktop.webp" width="2560" height="1440" loading="lazy" decoding="async" alt="샘플 문서 45개가 자재·품질·감리·공사·준공 문서함으로 정리되고, 확인 필요 2건과 누락 3건이 남은 AIARC 작업공간 전체 화면">
       </picture>
+      </div>
     </section>
 
-    <section class="section chapter wrap" id="evidence">
+    <section class="section chapter showcase is-reversed wrap" id="evidence">
+      <div class="showcase-copy">
       <h2>문제가 있으면,<br> <span>원문에서 바로 확인합니다.</span></h2>
       <p class="lead">무엇이 다른지와 확인해야 할 근거를 같은 작업공간에서 보여줍니다.</p>
+      </div>
+      <div class="showcase-visual">
       <picture class="product-shot">
         <source media="(max-width: 760px)" srcset="./landing/assets/chapter-evidence-mobile.webp" width="780" height="1280">
         <source media="(max-width: 1023px)" srcset="./landing/assets/chapter-evidence-tablet.webp" width="1800" height="1280">
         <img src="./landing/assets/chapter-evidence-desktop.webp" width="2560" height="1440" loading="lazy" decoding="async" alt="시험성적서의 제품명 ABC-120이 원문에 표시되고, 자재승인원 ABC-100과 다르다는 대화와 보완 요청 버튼이 함께 보이는 AIARC 작업공간 전체 화면">
       </picture>
+      </div>
     </section>
 
-    <section class="section chapter wrap" id="email-workflow">
+    <section class="section chapter showcase wrap" id="email-workflow">
+      <div class="showcase-copy">
       <h2>보완 요청과 회신도,<br> <span>같은 흐름에서 이어집니다.</span></h2>
       <p class="lead">AIARC에서 보완 요청을 정리하고,<br> 회신으로 받은 수정본을 기존 요청과 연결해 확인합니다.</p>
+      </div>
+      <div class="showcase-visual">
       <picture class="product-shot">
         <source media="(max-width: 760px)" srcset="./landing/assets/chapter-email-mobile.webp" width="1800" height="1800">
         <source media="(max-width: 1023px)" srcset="./landing/assets/chapter-email-tablet.webp" width="1800" height="1280">
         <img src="./landing/assets/chapter-email-desktop.webp" width="2560" height="1440" loading="lazy" decoding="async" alt="전체 AIARC 앱 프레임 위에 열린 가상 수정본 회신. 09/06 제품명 확인 요청과 연결된 회신, 이전 원문 ABC-120과 수정본 후보 ABC-100 비교, 수정본 첨부를 보여줍니다.">
       </picture>
       <div class="stage-foot"><p>가상 요청·회신으로 구성한 시연입니다. 실제 이메일을 발송하거나 수신하지 않습니다.</p></div>
+      </div>
     </section>
 
-    <section class="section chapter wrap" id="revision">
+    <section class="section chapter showcase is-reversed wrap" id="revision">
+      <div class="showcase-copy">
       <h2>수정본이 도착하면,<br> <span>프로젝트 상태도 바뀝니다.</span></h2>
       <p class="lead">이전 원문과 변경 이력은 그대로 보존합니다.</p>
+      </div>
+      <div class="showcase-visual">
       <picture class="product-shot">
         <source media="(max-width: 760px)" srcset="./landing/assets/chapter-revision-mobile.webp" width="780" height="1280">
         <source media="(max-width: 1023px)" srcset="./landing/assets/chapter-revision-tablet.webp" width="1800" height="1280">
         <img src="./landing/assets/chapter-revision-desktop.webp" width="2560" height="1440" loading="lazy" decoding="async" alt="시험성적서 수정본의 제품명 ABC-100이 자재승인원과 일치해 확인 완료로 바뀌고, 이전본과 변경 이력 6건이 함께 남은 AIARC 작업공간 전체 화면">
       </picture>
+      </div>
     </section>
 
-    <section class="section split wrap" id="project-state">
-      <div class="split-copy">
+    <section class="section split showcase wrap" id="project-state">
+      <div class="split-copy showcase-copy">
         <h2>변경 이력과 원문이<br> <span>현재 상태로 이어집니다.</span></h2>
         <p class="lead">파일을 다시 찾는 대신, 현재 상태와 변화의 이유를 근거와 함께 확인합니다.</p>
       </div>
-      <figure class="state-figure">
+      <figure class="state-figure showcase-visual">
         <!-- diagram:state --><svg class="diagram diagram-state" viewBox="-204 -330 700 566" aria-hidden="true" focusable="false"><g class="box sheet"><path class="face side" d="M190.5 110L0 220L0 217L190.5 107Z"/><path class="face front" d="M-190.5 110L0 220L0 217L-190.5 107Z"/><path class="face top" d="M0 -3L190.5 107L0 217L-190.5 107Z"/></g><g class="box sheet"><path class="face side" d="M190.5 58L0 168L0 165L190.5 55Z"/><path class="face front" d="M-190.5 58L0 168L0 165L-190.5 55Z"/><path class="face top" d="M0 -55L190.5 55L0 165L-190.5 55Z"/></g><g class="box sheet"><path class="face side" d="M190.5 6L0 116L0 113L190.5 3Z"/><path class="face front" d="M-190.5 6L0 116L0 113L-190.5 3Z"/><path class="face top" d="M0 -107L190.5 3L0 113L-190.5 3Z"/></g><g class="box sheet"><path class="face side" d="M190.5 -46L0 64L0 61L190.5 -49Z"/><path class="face front" d="M-190.5 -46L0 64L0 61L-190.5 -49Z"/><path class="face top" d="M0 -159L190.5 -49L0 61L-190.5 -49Z"/></g><g class="box sheet"><path class="face side" d="M190.5 -98L0 12L0 9L190.5 -101Z"/><path class="face front" d="M-190.5 -98L0 12L0 9L-190.5 -101Z"/><path class="face top" d="M0 -211L190.5 -101L0 9L-190.5 -101Z"/></g><path class="thread" d="M0 217L0 168"/><path class="thread" d="M0 165L0 116"/><path class="thread" d="M0 113L0 64"/><path class="thread" d="M0 61L0 12"/><path class="thread" d="M0 9L0 -72"/><g class="box current"><path class="face side" d="M190.5 -182L0 -72L0 -84L190.5 -194Z"/><path class="face front" d="M-190.5 -182L0 -72L0 -84L-190.5 -194Z"/><path class="face top" d="M0 -304L190.5 -194L0 -84L-190.5 -194Z"/></g><path class="plan" d="M0 -264L121.2 -194L0 -124L-121.2 -194Z"/><path class="plan-old" d="M45 -238L-76.2 -168"/><path class="plan-new" d="M79.7 -218L-41.6 -148"/><text class="mark dim" x="43" y="-248">A</text><text class="mark" x="77.7" y="-228">B</text><path class="leader" d="M196.5 108.5H236"/><text class="label" x="250" y="113.5"><tspan class="date">07.03</tspan><tspan dx="12">원도면 A</tspan></text><path class="leader" d="M196.5 56.5H236"/><text class="label" x="250" y="61.5"><tspan class="date">07.12</tspan><tspan dx="12">현장 변경지시</tspan></text><path class="leader" d="M196.5 4.5H236"/><text class="label" x="250" y="9.5"><tspan class="date">07.13</tspan><tspan dx="12">수정도면 B</tspan></text><path class="leader" d="M196.5 -47.5H236"/><text class="label" x="250" y="-42.5"><tspan class="date">07.14</tspan><tspan dx="12">회의록 · 메일</tspan></text><path class="leader" d="M196.5 -99.5H236"/><text class="label" x="250" y="-94.5"><tspan class="date">07.15</tspan><tspan dx="12">현장사진</tspan></text><path class="leader strong" d="M196.5 -188H236"/><text class="label strong" x="250" y="-183">현재 상태 · B</text></svg>
         <figcaption>
           <ol class="state-legend">

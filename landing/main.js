@@ -2,6 +2,8 @@ const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const narrow = matchMedia('(max-width: 939px)');
+// From 1280px the hero window keeps altitude.so's window proportions (700×584 with its bar), so the demo runs at 1280×1012 there.
+const showcase = matchMedia('(min-width: 1280px)');
 
 // Try AIARC. The window hosts the exported browser demo itself; the script below only
 // moves a drawn cursor and presses the app's own buttons, so no product logic lives here.
@@ -15,7 +17,7 @@ const status = $('#stage-status');
 const DEMO = './demo/index.html';
 
 function fit() {
-  const [width, height] = narrow.matches ? [390, 720] : [1280, 800];
+  const [width, height] = narrow.matches ? [390, 720] : showcase.matches ? [1280, 1012] : [1280, 800];
   frame.style.width = `${width}px`;
   frame.style.height = `${height}px`;
   view.style.setProperty('--s', view.clientWidth / width);
@@ -219,7 +221,7 @@ replay.addEventListener('click', () => play(reveal()));
 // A touch that scrolls the page is not a takeover; a tap is.
 const intent = (event) => event.isTrusted && !(event.type === 'pointerdown' && event.pointerType === 'touch');
 for (const type of ['pointerdown', 'click']) stage.addEventListener(type, (event) => { if (intent(event)) { takeOver(); load(); } }, true);
-narrow.addEventListener('change', () => { takeOver(); fit(); });
+for (const query of [narrow, showcase]) query.addEventListener('change', () => { takeOver(); fit(); });
 
 // Visitors can move the sample folder themselves, by dragging or by pressing it.
 let drag;
