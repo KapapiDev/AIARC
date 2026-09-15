@@ -143,3 +143,8 @@ button.desk-item:focus-visible{background:rgb(255 255 255 / .16)}
 }
 @media(max-width:480px){.stage{margin-inline:-8px}}
 @media(prefers-reduced-motion:reduce){.button{transition:none}}
+
+/* Quiet scroll utility; collision checks keep content unobstructed. */
+.back-to-top{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));z-index:9;width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:var(--surface);color:var(--muted)}
+.back-to-top[hidden]{display:none}
+.back-to-top:hover{color:var(--text);border-color:var(--figure)}
