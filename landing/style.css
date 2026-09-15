@@ -111,6 +111,12 @@ button.desk-item:focus-visible{background:rgb(255 255 255 / .16)}
 .footer a:hover{color:var(--text)}
 .footer-bottom{flex-basis:100%;padding-top:24px;border-top:1px solid var(--line);font-size:12px}
 
+/* Keep the product prominent on standard desktop viewports. */
+@media(min-width:1280px) and (max-width:1599px){
+  .hero{padding-top:32px}.hero-row{margin-top:16px}
+  .stage{margin-top:20px;padding:16px}
+  .window{max-width:none}
+}
 @media(min-width:1600px){.wrap{max-width:1536px;padding-inline:56px}}
 /* Desktop items move to a row once the window needs the full width. */
 @media(min-width:1024px) and (max-width:1279px){.product-shot{margin-inline:-24px}}
