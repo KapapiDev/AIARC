@@ -70,7 +70,8 @@ function point(element, fx = 0.5, fy = 0.5) {
     const outer = frame.getBoundingClientRect();
     [left, top, scale] = [outer.left, outer.top, outer.width / frame.offsetWidth];
   }
-  return [left + (rect.left + rect.width * fx) * scale - box.left, top + (rect.top + rect.height * fy) * scale - box.top];
+  const outerScale = stage.getBoundingClientRect().width / stage.offsetWidth;
+  return [(left + (rect.left + rect.width * fx) * scale - box.left) / outerScale, (top + (rect.top + rect.height * fy) * scale - box.top) / outerScale];
 }
 
 let run, ghost, dragTransfer, running = [];
@@ -126,7 +127,7 @@ function dragSignal(doc, type) {
 
 async function choreography(doc, signal) {
   const box = stage.getBoundingClientRect();
-  at = [box.width * 0.58, box.height * 0.9];
+  at = [stage.offsetWidth * 0.58, stage.offsetHeight * 0.9];
   Object.assign(cursor.style, translate(at));
   await animate(cursor, [{ opacity: 0 }, { opacity: 1 }], { duration: 240 }, signal);
   await move(point(folder, 0.5, 0.3), 780, signal);
@@ -238,7 +239,8 @@ folder.addEventListener('pointermove', (event) => {
   if (!drag) return;
   if (!drag.moved && Math.hypot(event.clientX - drag.x, event.clientY - drag.y) < 6) return;
   const box = stage.getBoundingClientRect();
-  const here = [event.clientX - box.left, event.clientY - box.top];
+  const outerScale = box.width / stage.offsetWidth;
+  const here = [(event.clientX - box.left) / outerScale, (event.clientY - box.top) / outerScale];
   if (!drag.moved) { drag.moved = true; lift(here); }
   Object.assign(ghost.style, translate([here[0] - 52, here[1] - 26]));
 });
@@ -357,3 +359,18 @@ $$('[data-mail-view]').forEach(button => button.addEventListener('click', () => 
   $$('[data-mail-view]').forEach(other => other.setAttribute('aria-pressed', String(other === button)));
   $('.mail-state', emailChapter).textContent = `${mailViews[name].label} 화면`;
 }));
+
+// Scale the complete desktop stage together, preserving the approved wallpaper exposure.
+const stageHost = $('.stage-host');
+function sizeStageHost() {
+  if (matchMedia('(min-width: 1280px)').matches) {
+    const scale = stageHost.clientWidth / 1296;
+    stageHost.style.setProperty('--stage-scale', scale);
+    stageHost.style.height = `${772 * scale}px`;
+  } else {
+    stageHost.style.removeProperty('--stage-scale');
+    stageHost.style.removeProperty('height');
+  }
+}
+new ResizeObserver(sizeStageHost).observe(stageHost);
+sizeStageHost();
