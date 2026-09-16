@@ -70,7 +70,8 @@ function point(element, fx = 0.5, fy = 0.5) {
     const outer = frame.getBoundingClientRect();
     [left, top, scale] = [outer.left, outer.top, outer.width / frame.offsetWidth];
   }
-  return [left + (rect.left + rect.width * fx) * scale - box.left, top + (rect.top + rect.height * fy) * scale - box.top];
+  const outerScale = stage.getBoundingClientRect().width / stage.offsetWidth;
+  return [(left + (rect.left + rect.width * fx) * scale - box.left) / outerScale, (top + (rect.top + rect.height * fy) * scale - box.top) / outerScale];
 }
 
 let run, ghost, dragTransfer, running = [];
@@ -126,7 +127,7 @@ function dragSignal(doc, type) {
 
 async function choreography(doc, signal) {
   const box = stage.getBoundingClientRect();
-  at = [box.width * 0.58, box.height * 0.9];
+  at = [stage.offsetWidth * 0.58, stage.offsetHeight * 0.9];
   Object.assign(cursor.style, translate(at));
   await animate(cursor, [{ opacity: 0 }, { opacity: 1 }], { duration: 240 }, signal);
   await move(point(folder, 0.5, 0.3), 780, signal);
@@ -238,7 +239,8 @@ folder.addEventListener('pointermove', (event) => {
   if (!drag) return;
   if (!drag.moved && Math.hypot(event.clientX - drag.x, event.clientY - drag.y) < 6) return;
   const box = stage.getBoundingClientRect();
-  const here = [event.clientX - box.left, event.clientY - box.top];
+  const outerScale = box.width / stage.offsetWidth;
+  const here = [(event.clientX - box.left) / outerScale, (event.clientY - box.top) / outerScale];
   if (!drag.moved) { drag.moved = true; lift(here); }
   Object.assign(ghost.style, translate([here[0] - 52, here[1] - 26]));
 });
@@ -305,3 +307,83 @@ backToTop.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
 });
 updateBackToTop();
+
+// Still-image inspection is separate from the interactive product demo.
+const imageViewer = $('.image-viewer');
+const viewerImage = $('img', imageViewer);
+const viewerScroll = $('.image-viewer-scroll', imageViewer);
+const zoomImage = $('[data-image-zoom]', imageViewer);
+let imageOpener;
+function resetImageZoom() {
+  delete imageViewer.dataset.zoomed;
+  zoomImage.setAttribute('aria-pressed', 'false');
+  zoomImage.textContent = '확대';
+  viewerScroll.scrollTo(0, 0);
+}
+$$('[data-image-viewer]').forEach(link => link.addEventListener('click', event => {
+  if (!matchMedia('(max-width: 760px)').matches) { event.preventDefault(); return; }
+  if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
+  event.preventDefault();
+  imageOpener = link;
+  viewerImage.src = link.href;
+  viewerImage.alt = $('img', link).alt;
+  $('#image-viewer-title').textContent = link.getAttribute('aria-label').replace(' 확대', '');
+  resetImageZoom();
+  imageViewer.showModal();
+  $('[data-image-close]', imageViewer).focus();
+}));
+zoomImage.addEventListener('click', () => {
+  if (imageViewer.hasAttribute('data-zoomed')) return resetImageZoom();
+  imageViewer.dataset.zoomed = '';
+  zoomImage.setAttribute('aria-pressed', 'true');
+  zoomImage.textContent = '전체 보기';
+  viewerScroll.scrollLeft = Math.max(0, (viewerScroll.scrollWidth - viewerScroll.clientWidth) / 2);
+});
+$('[data-image-close]', imageViewer).addEventListener('click', () => imageViewer.close());
+imageViewer.addEventListener('close', () => { resetImageZoom(); imageOpener?.focus({ preventScroll: true }); });
+
+// Switch only between unmodified captures reached through the demo's own controls.
+const emailChapter = $('#email-workflow');
+const mailViews = {
+  request: { label: '보완 요청', alt: '전체 AIARC 앱 프레임에서 제품명 불일치에 대한 요청 대상, 제목과 내용을 확인하는 가상 보완 요청 초안입니다.' },
+  email: { label: '수정본 회신', alt: $('.product-shot img', emailChapter).alt }
+};
+$$('[data-mail-view]').forEach(button => button.addEventListener('click', () => {
+  const name = button.dataset.mailView;
+  const link = $('.shot-link', emailChapter);
+  const picture = $('picture', link);
+  $$('source', picture).forEach((source, i) => { source.srcset = `./landing/assets/chapter-${name}-${i === 0 ? 'mobile' : 'tablet'}.webp`; });
+  $('img', picture).src = `./landing/assets/chapter-${name}-desktop.webp`;
+  $('img', picture).alt = mailViews[name].alt;
+  link.href = $('img', picture).src;
+  link.setAttribute('aria-label', `${mailViews[name].label} 전체 앱 화면 확대`);
+  $$('[data-mail-view]').forEach(other => other.setAttribute('aria-pressed', String(other === button)));
+  $('.mail-state', emailChapter).textContent = `${mailViews[name].label} 화면`;
+}));
+
+// Scale the complete desktop stage together, preserving the approved wallpaper exposure.
+const stageHost = $('.stage-host');
+function sizeStageHost() {
+  if (matchMedia('(min-width: 1280px)').matches) {
+    const scale = stageHost.clientWidth / 1296;
+    stageHost.style.setProperty('--stage-scale', scale);
+    stageHost.style.height = `${772 * scale}px`;
+  } else {
+    stageHost.style.removeProperty('--stage-scale');
+    stageHost.style.removeProperty('height');
+  }
+}
+new ResizeObserver(sizeStageHost).observe(stageHost);
+sizeStageHost();
+
+const mobileInspection = matchMedia('(max-width: 760px)');
+function updateInspectionLinks() {
+  $$('[data-image-viewer]').forEach(link => {
+    link.tabIndex = mobileInspection.matches ? 0 : -1;
+    if (mobileInspection.matches) link.setAttribute('aria-haspopup', 'dialog');
+    else link.removeAttribute('aria-haspopup');
+  });
+  if (!mobileInspection.matches && imageViewer.open) imageViewer.close();
+}
+mobileInspection.addEventListener('change', updateInspectionLinks);
+updateInspectionLinks();
