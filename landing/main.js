@@ -305,3 +305,55 @@ backToTop.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
 });
 updateBackToTop();
+
+// Still-image inspection is separate from the interactive product demo.
+const imageViewer = $('.image-viewer');
+const viewerImage = $('img', imageViewer);
+const viewerScroll = $('.image-viewer-scroll', imageViewer);
+const zoomImage = $('[data-image-zoom]', imageViewer);
+let imageOpener;
+function resetImageZoom() {
+  delete imageViewer.dataset.zoomed;
+  zoomImage.setAttribute('aria-pressed', 'false');
+  zoomImage.textContent = '확대';
+  viewerScroll.scrollTo(0, 0);
+}
+$$('[data-image-viewer]').forEach(link => link.addEventListener('click', event => {
+  if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
+  event.preventDefault();
+  imageOpener = link;
+  viewerImage.src = link.href;
+  viewerImage.alt = $('img', link).alt;
+  $('#image-viewer-title').textContent = link.getAttribute('aria-label').replace(' 확대', '');
+  resetImageZoom();
+  imageViewer.showModal();
+  $('[data-image-close]', imageViewer).focus();
+}));
+zoomImage.addEventListener('click', () => {
+  if (imageViewer.hasAttribute('data-zoomed')) return resetImageZoom();
+  imageViewer.dataset.zoomed = '';
+  zoomImage.setAttribute('aria-pressed', 'true');
+  zoomImage.textContent = '전체 보기';
+  viewerScroll.scrollLeft = Math.max(0, (viewerScroll.scrollWidth - viewerScroll.clientWidth) / 2);
+});
+$('[data-image-close]', imageViewer).addEventListener('click', () => imageViewer.close());
+imageViewer.addEventListener('close', () => { resetImageZoom(); imageOpener?.focus({ preventScroll: true }); });
+
+// Switch only between unmodified captures reached through the demo's own controls.
+const emailChapter = $('#email-workflow');
+const mailViews = {
+  request: { label: '보완 요청 초안', alt: '전체 AIARC 앱 프레임에서 제품명 불일치에 대한 요청 대상, 제목과 내용을 확인하는 가상 보완 요청 초안입니다.' },
+  email: { label: '수정본 회신', alt: $('.product-shot img', emailChapter).alt }
+};
+$$('[data-mail-view]').forEach(button => button.addEventListener('click', () => {
+  const name = button.dataset.mailView;
+  const link = $('.shot-link', emailChapter);
+  const picture = $('picture', link);
+  $$('source', picture).forEach((source, i) => { source.srcset = `./landing/assets/chapter-${name}-${i === 0 ? 'mobile' : 'tablet'}.webp`; });
+  $('img', picture).src = `./landing/assets/chapter-${name}-desktop.webp`;
+  $('img', picture).alt = mailViews[name].alt;
+  link.href = $('img', picture).src;
+  link.setAttribute('aria-label', `${mailViews[name].label} 전체 앱 화면 확대`);
+  $$('[data-mail-view]').forEach(other => other.setAttribute('aria-pressed', String(other === button)));
+  $('.mail-state', emailChapter).textContent = `${mailViews[name].label} 화면`;
+}));
