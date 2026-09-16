@@ -145,17 +145,17 @@ async function choreography(doc, signal) {
   appAction(doc, 'start-sample').click();
   await move(point(canvasOf(doc), 0.56, 0.6), 900, signal);
   const organize = await until(() => appAction(doc, 'apply-plan'), signal);
-  await sleep(700, signal);
+  await sleep(1800, signal);
   await move(point(organize), 760, signal);
   await press(signal);
   organize.click();
   const review = await until(() => appAction(doc, 'inspect'), signal);
-  await sleep(1100, signal);
+  await sleep(2400, signal);
   await move(point(review), 700, signal);
   await press(signal);
   review.click();
   const request = await until(() => $('.document-field[data-highlight=true]', doc) && appAction(doc, 'request-fix'), signal);
-  await sleep(1200, signal);
+  await sleep(1800, signal);
   await move(point(request, 0.55, 0.85), 820, signal);
 }
 async function instant(doc, signal) {
