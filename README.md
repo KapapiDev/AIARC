@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <sub><strong>준공 문서 자동화에서 시작해 프로젝트의 맥락을 파악하는 AI 업무공간으로, 더 나아가 건설 AI 업무 인프라로 확장합니다.</strong></sub>
+  <sub><strong>프로젝트의 맥락을 이해하는 AI 업무공간, 나아가 건설 업무 전반을 연결하는 AI 인프라를 만들고 있습니다.</strong></sub>
 </p>
 
 <p align="center">
