@@ -321,6 +321,7 @@ function resetImageZoom() {
   viewerScroll.scrollTo(0, 0);
 }
 $$('[data-image-viewer]').forEach(link => link.addEventListener('click', event => {
+  if (!matchMedia('(max-width: 760px)').matches) { event.preventDefault(); return; }
   if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
   event.preventDefault();
   imageOpener = link;
@@ -344,7 +345,7 @@ imageViewer.addEventListener('close', () => { resetImageZoom(); imageOpener?.foc
 // Switch only between unmodified captures reached through the demo's own controls.
 const emailChapter = $('#email-workflow');
 const mailViews = {
-  request: { label: '보완 요청 초안', alt: '전체 AIARC 앱 프레임에서 제품명 불일치에 대한 요청 대상, 제목과 내용을 확인하는 가상 보완 요청 초안입니다.' },
+  request: { label: '보완 요청', alt: '전체 AIARC 앱 프레임에서 제품명 불일치에 대한 요청 대상, 제목과 내용을 확인하는 가상 보완 요청 초안입니다.' },
   email: { label: '수정본 회신', alt: $('.product-shot img', emailChapter).alt }
 };
 $$('[data-mail-view]').forEach(button => button.addEventListener('click', () => {
@@ -374,3 +375,15 @@ function sizeStageHost() {
 }
 new ResizeObserver(sizeStageHost).observe(stageHost);
 sizeStageHost();
+
+const mobileInspection = matchMedia('(max-width: 760px)');
+function updateInspectionLinks() {
+  $$('[data-image-viewer]').forEach(link => {
+    link.tabIndex = mobileInspection.matches ? 0 : -1;
+    if (mobileInspection.matches) link.setAttribute('aria-haspopup', 'dialog');
+    else link.removeAttribute('aria-haspopup');
+  });
+  if (!mobileInspection.matches && imageViewer.open) imageViewer.close();
+}
+mobileInspection.addEventListener('change', updateInspectionLinks);
+updateInspectionLinks();
