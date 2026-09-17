@@ -187,8 +187,9 @@ async function finishWalkthrough(doc, signal, instant) {
   await pressAction(doc,'request-fix',signal,instant);
   await focusResult(await until(()=>$('.completion-stats',doc),signal),signal,instant);
   await pressAction(doc,'send-completion',signal,instant);
-  await until(()=>$('[data-demo-result="requested"]',doc),signal);
-  await focusResult($('[data-demo-result="requested"]',doc),signal,instant);
+  await until(()=>!$('.completion-flow',doc),signal);
+  const notification=await until(()=>$('[data-demo-result="reply-notification"]',doc),signal);
+  await focusResult(notification,signal,instant);
   await pressAction(doc,'receive-completion',signal,instant);
   await until(()=>$('[data-demo-result="reply"]',doc),signal);
   await focusResult($('.completion-files',doc),signal,instant);
