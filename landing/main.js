@@ -11,6 +11,18 @@ const frame = $('iframe', stage);
 const cursor = $('.cursor', stage);
 const folder = $('[data-folder]', stage);
 const replay = $('[data-replay]');
+const packageIcon = document.createElement('button');
+packageIcon.type = 'button';
+packageIcon.className = 'desk-item package-item';
+packageIcon.hidden = true;
+packageIcon.setAttribute('aria-label', '생성된 준공서류 ZIP 열기');
+packageIcon.innerHTML = '<svg class="desk-icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M9 3h21l10 10v32H9Z" fill="#f4f6f8"/><path d="M30 3v11h10" fill="#cfd7df"/><path d="M20 8h5m-5 6h5m-5 6h5m-5 6h5" stroke="#8796a6" stroke-width="3"/><rect x="18" y="30" width="9" height="9" rx="2" fill="none" stroke="#69798b" stroke-width="2"/></svg><span>OOO근린생활시설_준공서류.zip</span>';
+$('.desktop').append(packageIcon);
+packageIcon.addEventListener('click', () => {
+  const doc=frame.contentDocument;
+  const open=doc && appAction(doc,'open-zip');
+  if(open && !doc.querySelector('[data-demo-result="archive"]')) open.click();
+});
 const status = $('#stage-status');
 const DEMO = './demo/index.html';
 
@@ -39,6 +51,11 @@ function load(fresh = false) {
       for (let i = 0; i < 200 && !$('#unified-canvas', doc); i++) await sleep(50);
       await doc.fonts?.ready;
       for (const type of ['pointerdown', 'click', 'keydown', 'dragenter']) doc.addEventListener(type, (event) => { if (intent(event)) takeOver(); }, true);
+      doc.addEventListener('aiarc:package-ready', event => {
+        if (doc !== frame.contentDocument || !event.detail?.blob?.size) return;
+        packageIcon.hidden = false;
+        packageIcon.classList.add('package-selected');
+      });
       stage.dataset.live = 'ready';
       frame.tabIndex = 0;
       resolve(doc);
@@ -144,24 +161,58 @@ async function choreography(doc, signal) {
   settle(true);
   appAction(doc, 'start-sample').click();
   await move(point(canvasOf(doc), 0.56, 0.6), 900, signal);
-  const organize = await until(() => appAction(doc, 'apply-plan'), signal);
-  await sleep(1800, signal);
-  await move(point(organize), 760, signal);
-  await press(signal);
-  organize.click();
-  const review = await until(() => appAction(doc, 'inspect'), signal);
-  await sleep(2400, signal);
-  await move(point(review), 700, signal);
-  await press(signal);
-  review.click();
-  const request = await until(() => $('.document-field[data-highlight=true]', doc) && appAction(doc, 'request-fix'), signal);
-  await sleep(1800, signal);
-  await move(point(request, 0.55, 0.85), 820, signal);
+  await finishWalkthrough(doc, signal, false);
+}
+async function focusResult(element, signal, instant) {
+  if (!element) return;
+  element.scrollIntoView({block:'nearest',behavior:'instant'});
+  element.classList.add('tour-focus');
+  try { if(!instant) await sleep(1000,signal); } finally { element.classList.remove('tour-focus'); }
+}
+async function pressAction(doc, id, signal, instant) {
+  const button=await until(()=>appAction(doc,id),signal,20000);
+  button.scrollIntoView({block:'nearest',behavior:'instant'});
+  if(!instant){await move(point(button),440,signal);await press(signal);}
+  signal.throwIfAborted();button.click();
+}
+async function finishWalkthrough(doc, signal, instant) {
+  await until(()=>appAction(doc,'apply-plan'),signal);
+  await focusResult($('.received-files',doc),signal,instant);
+  await pressAction(doc,'apply-plan',signal,instant);
+  await focusResult($('.organized-groups',doc),signal,instant);
+  const discovery=await until(()=>$('[data-demo-result="discovery"]',doc),signal);
+  await focusResult(discovery,signal,instant);
+  await pressAction(doc,'inspect-discovery',signal,instant);
+  await focusResult(await until(()=>$('.state-evidence-pair',doc),signal),signal,instant);
+  await pressAction(doc,'request-fix',signal,instant);
+  await focusResult(await until(()=>$('.completion-stats',doc),signal),signal,instant);
+  await pressAction(doc,'send-completion',signal,instant);
+  await until(()=>$('[data-demo-result="requested"]',doc),signal);
+  await focusResult($('[data-demo-result="requested"]',doc),signal,instant);
+  await pressAction(doc,'receive-completion',signal,instant);
+  await until(()=>$('[data-demo-result="reply"]',doc),signal);
+  await focusResult($('.completion-files',doc),signal,instant);
+  await pressAction(doc,'review-completion',signal,instant);
+  await focusResult(await until(()=>$('[data-demo-result="comparison"]',doc),signal),signal,instant);
+  await pressAction(doc,'approve-copies',signal,instant);
+  await pressAction(doc,'approve-references',signal,instant);
+  await focusResult($('.completion-missing',doc),signal,instant);
+  await pressAction(doc,'confirm-completion',signal,instant);
+  await until(()=>$('[data-demo-result="resolved"]',doc),signal);
+  await focusResult($('[data-demo-result="resolved"]',doc),signal,instant);
+  await pressAction(doc,'build-zip',signal,instant);
+  await until(()=>$('[data-demo-result="zip"]',doc),signal,30000);
+  await focusResult($('[data-demo-result="zip"]',doc),signal,instant);
+  if(!instant){await move(point(packageIcon),500,signal);await press(signal);}
+  packageIcon.click();
+  const archive = await until(()=>$('[data-demo-result="archive"]',doc),signal);
+  const firstFolder=$('summary',archive);
+  if(firstFolder){if(!instant){await move(point(firstFolder),440,signal);await press(signal);}firstFolder.click();}
+  await focusResult(archive,signal,instant);
 }
 async function instant(doc, signal) {
-  appAction(doc, 'start-sample').click();
-  for (const id of ['apply-plan', 'inspect']) (await until(() => appAction(doc, id), signal)).click();
-  await until(() => appAction(doc, 'request-fix'), signal);
+  appAction(doc,'start-sample').click();
+  await finishWalkthrough(doc,signal,true);
 }
 function hideCursor(delay = 0) {
   const fade = cursor.animate([{ opacity: getComputedStyle(cursor).opacity }, { opacity: 0 }], { duration: 260, delay, fill: 'forwards' });
@@ -176,6 +227,8 @@ async function play(before) {
   const { signal } = controller;
   running.forEach((animation) => animation.cancel());
   running = [];
+  packageIcon.hidden = true;
+  packageIcon.classList.remove('package-selected');
   stage.dataset.state = 'playing';
   replay.hidden = true;
   try {
@@ -187,7 +240,7 @@ async function play(before) {
     say('시연이 끝났습니다. 화면을 직접 조작하거나 다시 볼 수 있습니다.');
     hideCursor(1800);
   } catch {
-    if (!signal.aborted) { stage.dataset.state = 'done'; hideCursor(); }
+    if (!signal.aborted) { stage.dataset.state = 'error'; say('시연을 완료하지 못했습니다. 다시 보기를 눌러 주세요.'); hideCursor(); }
   } finally {
     if (run === controller) run = null;
     replay.hidden = false;
@@ -225,6 +278,7 @@ narrow.addEventListener('change', () => { takeOver(); fit(); });
 // Visitors can move the sample folder themselves, by dragging or by pressing it.
 let drag;
 async function openSampleFolder() {
+  packageIcon.hidden = true;
   const doc = await freshApp();
   appAction(doc, 'start-sample')?.click();
   stage.dataset.state = 'taken';

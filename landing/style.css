@@ -257,3 +257,9 @@ body:has(.image-viewer[open]){overflow:hidden}
 .mail-switch button[aria-pressed=true]{background:none;border-bottom:1px solid var(--soft)}
 @media(min-width:761px){.chapter-visual .shot-expand{display:none}.chapter-visual .shot-link{cursor:default}}
 @media(min-width:761px) and (max-width:1023px){.chapter-heading{grid-template-columns:1fr}}
+
+/* A real generated archive is represented on the demonstration desktop. */
+.package-item[hidden]{display:none!important}
+button.package-item{cursor:pointer;touch-action:auto}
+.package-selected{background:rgb(255 255 255 / .2);outline:1px solid rgb(255 255 255 / .5);outline-offset:2px}
+@media(max-width:1279px){.desktop:has(.package-item:not([hidden])){display:flex;justify-content:space-between;gap:8px}.desktop .package-item{max-width:48%;font-size:10px}.desktop:has(.package-item:not([hidden])) [data-folder]{max-width:48%}}
