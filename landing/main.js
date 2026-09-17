@@ -180,8 +180,6 @@ async function finishWalkthrough(doc, signal, instant) {
   await focusResult($('.received-files',doc),signal,instant);
   await pressAction(doc,'apply-plan',signal,instant);
   await focusResult($('.organized-groups',doc),signal,instant);
-  await focusResult($('[data-demo-result="organization-review"]',doc),signal,instant);
-  await pressAction(doc,'approve-organization',signal,instant);
   const discovery=await until(()=>$('[data-demo-result="discovery"]',doc),signal);
   await focusResult(discovery,signal,instant);
   await pressAction(doc,'inspect-discovery',signal,instant);
@@ -199,6 +197,11 @@ async function finishWalkthrough(doc, signal, instant) {
   await focusResult(await until(()=>$('[data-demo-result="comparison"]',doc),signal),signal,instant);
   await focusResult($('.completion-missing',doc),signal,instant);
   await pressAction(doc,'confirm-completion',signal,instant);
+  await until(()=>appAction(doc,'approve-package') || $('[data-demo-result=resolved]',doc),signal);
+  if(appAction(doc,'approve-package')){
+    await focusResult($('.completion-flow',doc),signal,instant);
+    await pressAction(doc,'approve-package',signal,instant);
+  }
   await until(()=>$('[data-demo-result="resolved"]',doc),signal);
   await focusResult($('[data-demo-result="resolved"]',doc),signal,instant);
   await pressAction(doc,'build-zip',signal,instant);
