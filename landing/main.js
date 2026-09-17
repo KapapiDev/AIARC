@@ -167,7 +167,7 @@ async function focusResult(element, signal, instant) {
   if (!element) return;
   element.scrollIntoView({block:'nearest',behavior:'instant'});
   element.classList.add('tour-focus');
-  try { if(!instant) await sleep(1000,signal); } finally { element.classList.remove('tour-focus'); }
+  try { if(!instant) await sleep(2000,signal); } finally { element.classList.remove('tour-focus'); }
 }
 async function pressAction(doc, id, signal, instant) {
   const button=await until(()=>appAction(doc,id),signal,20000);
