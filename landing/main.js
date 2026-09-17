@@ -182,6 +182,7 @@ async function finishWalkthrough(doc, signal, instant) {
   await focusResult($('.organized-groups',doc),signal,instant);
   const discovery=await until(()=>$('[data-demo-result="discovery"]',doc),signal);
   await focusResult(discovery,signal,instant);
+  await focusResult($('[data-demo-result="missing-files"]',doc),signal,instant);
   await pressAction(doc,'inspect-discovery',signal,instant);
   await focusResult(await until(()=>$('.state-evidence-pair',doc),signal),signal,instant);
   await pressAction(doc,'request-fix',signal,instant);
