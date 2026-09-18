@@ -57,7 +57,11 @@ button.desk-item:focus-visible{background:rgb(255 255 255 / .16)}
 .window-view iframe{position:absolute;left:0;top:0;width:1280px;height:800px;border:0;background:#fafbfc;transform:scale(var(--s));transform-origin:0 0;opacity:0;pointer-events:none}
 .stage[data-live=ready] iframe{opacity:1;pointer-events:auto}
 .cursor{position:absolute;left:0;top:0;z-index:4;width:22px;height:26px;opacity:0;pointer-events:none;will-change:transform}
-.cursor svg{display:block;width:22px;height:26px;filter:drop-shadow(0 1px 1.5px rgb(0 0 0 / .4))}
+.cursor svg{display:block;width:22px;height:26px;filter:drop-shadow(0 1px 1.5px rgb(0 0 0 / .4));transition:opacity .18s ease}
+.cursor.is-reading svg{opacity:0}
+.tour-spotlight{position:absolute;inset:0;z-index:3;overflow:hidden;pointer-events:none;opacity:0;border-radius:inherit}
+.tour-spotlight>div{position:absolute;border-radius:8px;box-shadow:0 0 0 200vmax rgb(12 20 30 / .18);outline:1px solid rgb(100 115 132 / .22)}
+@media(prefers-reduced-motion:reduce){.cursor svg{transition:none}.tour-spotlight{display:none}}
 .cursor path{fill:#16181b;stroke:#fff;stroke-width:1.4;stroke-linejoin:round}
 .cursor i{position:absolute;left:-9px;top:-8px;width:24px;height:24px;border-radius:50%;border:2px solid rgb(22 24 27 / .55);opacity:0}
 .stage-foot{display:flex;align-items:baseline;justify-content:space-between;gap:24px;margin-top:16px;font-size:12px;line-height:1.7;color:var(--muted)}
@@ -257,3 +261,9 @@ body:has(.image-viewer[open]){overflow:hidden}
 .mail-switch button[aria-pressed=true]{background:none;border-bottom:1px solid var(--soft)}
 @media(min-width:761px){.chapter-visual .shot-expand{display:none}.chapter-visual .shot-link{cursor:default}}
 @media(min-width:761px) and (max-width:1023px){.chapter-heading{grid-template-columns:1fr}}
+
+/* A real generated archive is represented on the demonstration desktop. */
+.package-item[hidden]{display:none!important}
+button.package-item{cursor:pointer;touch-action:auto}
+.package-selected{background:rgb(255 255 255 / .2);outline:1px solid rgb(255 255 255 / .5);outline-offset:2px}
+@media(max-width:1279px){.desktop:has(.package-item:not([hidden])){display:flex;justify-content:space-between;gap:8px}.desktop .package-item{max-width:48%;font-size:10px}.desktop:has(.package-item:not([hidden])) [data-folder]{max-width:48%}}
