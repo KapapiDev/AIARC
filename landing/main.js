@@ -228,12 +228,7 @@ async function finishWalkthrough(doc, signal, instant) {
   await pressAction(doc,'confirm-completion',signal,instant);
   await until(()=>$('[data-demo-result="zip"]',doc),signal,30000);
   await focusResult($('[data-demo-result="zip"]',doc),signal,instant);
-  if(!instant){await move(point(packageIcon),500,signal);await press(signal);}
-  packageIcon.click();
-  const archive = await until(()=>$('[data-demo-result="archive"]',doc),signal);
-  const firstFolder=$('summary',archive);
-  if(firstFolder){if(!instant){await move(point(firstFolder),440,signal);await press(signal);}firstFolder.click();}
-  await focusResult(archive,signal,instant);
+
 }
 async function instant(doc, signal) {
   appAction(doc,'start-sample').click();
