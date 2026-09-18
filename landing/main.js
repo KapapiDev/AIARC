@@ -110,8 +110,10 @@ function move(to, duration, signal) {
   return Promise.all(moves);
 }
 async function press(signal) {
-  $('i', cursor).animate([{ opacity: 0.9, transform: 'scale(.4)' }, { opacity: 0, transform: 'scale(1.3)' }], { duration: 420, easing: 'ease-out' });
-  await animate($('svg', cursor), [{ transform: 'scale(1)' }, { transform: 'scale(.86)' }, { transform: 'scale(1)' }], { duration: 200, fill: 'none' }, signal);
+  await Promise.all([
+    animate($('i', cursor), [{ opacity: .5, transform: 'scale(.65)' }, { opacity: 0, transform: 'scale(1.15)' }], { duration: 280, easing: 'ease-out', fill: 'none' }, signal),
+    animate($('svg', cursor), [{ transform: 'scale(1)' }, { transform: 'scale(.94)' }, { transform: 'scale(1)' }], { duration: 200, fill: 'none' }, signal),
+  ]);
 }
 function lift(from) {
   ghost = folder.cloneNode(true);
@@ -164,10 +166,37 @@ async function choreography(doc, signal) {
   await finishWalkthrough(doc, signal, false);
 }
 async function focusResult(element, signal, instant) {
-  if (!element) return;
+  if (!element || instant) return;
   element.scrollIntoView({block:'nearest',behavior:'instant'});
-  element.classList.add('tour-focus');
-  try { if(!instant) await sleep(2000,signal); } finally { element.classList.remove('tour-focus'); }
+  // A presentation-only mask: the real app remains visible and interactive underneath.
+  const mask = document.createElement('div');
+  mask.className = 'tour-spotlight';
+  mask.setAttribute('aria-hidden', 'true');
+  const aperture = document.createElement('div');
+  mask.append(aperture);
+  stage.append(mask);
+  cursor.classList.add('is-reading');
+  let tick;
+  const track = () => {
+    const [x, y] = point(element, 0, 0);
+    const [right, bottom] = point(element, 1, 1);
+    const bounds = element.ownerDocument === document ? stage : view;
+    const [bx, by] = point(bounds, 0, 0);
+    const [br, bb] = point(bounds, 1, 1);
+    const left = Math.max(bx, x - 6), top = Math.max(by, y - 6);
+    Object.assign(aperture.style, { left: `${left}px`, top: `${top}px`, width: `${Math.max(0, Math.min(br, right + 6) - left)}px`, height: `${Math.max(0, Math.min(bb, bottom + 6) - top)}px` });
+    tick = requestAnimationFrame(track);
+  };
+  track();
+  try {
+    await animate(mask, [{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' }, signal);
+    await sleep(1560, signal);
+    await animate(mask, [{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: 'ease-in' }, signal);
+  } finally {
+    cancelAnimationFrame(tick);
+    mask.remove();
+    cursor.classList.remove('is-reading');
+  }
 }
 async function pressAction(doc, id, signal, instant) {
   const button=await until(()=>appAction(doc,id),signal,20000);
