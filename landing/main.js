@@ -212,7 +212,7 @@ async function finishWalkthrough(doc, signal, instant) {
   const discovery=await until(()=>$('[data-demo-result="discovery"]',doc),signal);
   await focusResult(discovery,signal,instant);
   await pressAction(doc,'inspect-discovery',signal,instant);
-  await focusResult(await until(()=>$('.state-evidence-pair',doc),signal),signal,instant);
+  await focusResult(await until(()=>$('.state-notice',doc),signal),signal,instant);
   await pressAction(doc,'request-fix',signal,instant);
   await focusResult(await until(()=>$('.completion-stats',doc),signal),signal,instant);
   await pressAction(doc,'send-completion',signal,instant);
